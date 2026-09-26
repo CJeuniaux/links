@@ -49,10 +49,10 @@ async function lireFlux(f) {
     const r = await fetch(f.url, { headers: { "User-Agent": "Mozilla/5.0 (bureau-de-papa)" }, signal: AbortSignal.timeout(8000) });
     if (!r.ok) return [];
     const xml = await r.text();
-    return (xml.match(/<item[\s>][\s\S]*?<\/item>/gi) || []).slice(0, 12).map((b) => ({
+    return (xml.match(/<item[\s>][\s\S]*?<\/item>/gi) || []).slice(0, 8).map((b) => ({
       source: f.nom,
       titre: decoder(balise(b, "title")),
-      resume: decoder(balise(b, "description")).slice(0, 300),
+      resume: decoder(balise(b, "description")).slice(0, 220),
       image: image(b),
     })).filter((a) => a.titre);
   } catch (e) {

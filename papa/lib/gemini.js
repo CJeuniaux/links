@@ -2,6 +2,8 @@
 // variable d'environnement GEMINI_API_KEY (et, en option, GEMINI_MODEL).
 const MODELE_DEFAUT = "gemini-3.8-flash";
 const MODELE_SECOURS = "gemini-flash-latest";
+// Modèles « légers » : quota séparé, utilisés quand le quota du modèle principal est épuisé (erreur 429).
+const MODELES_LEGERS = ["gemini-flash-lite-latest", "gemini-3.5-flash-lite"];
 
 // Gemini surchargé (500/503) : on réessaie une fois après une petite pause.
 async function appeler(modele, corps) {
@@ -64,9 +66,21 @@ async function demanderGemini({ consigne, echanges, json = false, maxMots = 2048
       return await appeler(modele, avec(v));
     } catch (e) {
       derniere = e;
-      // Option refusée (400), non autorisée (403) ou quota dépassé (429) : on essaie sans.
-      if (![400, 403, 429].includes(e.status)) break;
+      // Option refusée (400) ou non autorisée (403) : on essaie sans.
+      // Quota dépassé (429) : inutile d'insister sur ce modèle, on passe aux modèles légers.
+      if (![400, 403].includes(e.status)) break;
     }
+  }
+  if (derniere && derniere.status === 429) {
+    for (const leger of MODELES_LEGERS) {
+      try {
+        return await appelerUneFois(leger, avec({}));
+      } catch (e) {
+        derniere = e;
+        if (![404, 400, 429].includes(e.status)) break;
+      }
+    }
+    throw derniere;
   }
   // Modèle inconnu ou retiré : on essaie l'alias « dernier Flash ».
   if (derniere && [400, 404, 500, 503].includes(derniere.status) && modele !== MODELE_SECOURS) {

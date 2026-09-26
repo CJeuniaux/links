@@ -57,7 +57,7 @@ module.exports = async (req, res) => {
   } catch (e) {
     console.error(e.message);
     return res.status(e.sansCle ? 503 : 502).json({
-      erreur: e.sansCle ? "non configuré" : "indisponible",
+      erreur: e.sansCle ? "non configuré" : e.status === 429 ? "quota" : "indisponible",
       // Détail pour le diagnostic (ne contient jamais la clé).
       detail: String(e.message || "").replace(/key=[^&\s]+/gi, "key=…").slice(0, 160),
     });

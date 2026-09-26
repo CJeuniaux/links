@@ -950,6 +950,8 @@
           if (ecranActuel !== "discuter") return;
           var msg = j && j.erreur === "non configuré"
             ? "La discussion n'est pas encore activée."
+            : j && j.erreur === "quota"
+            ? "J'ai beaucoup parlé aujourd'hui, je dois me reposer un peu. Réessaie un peu plus tard."
             : "Je n'arrive pas à répondre pour le moment. Réessaie un peu plus tard.";
           $("disc-ordi").textContent = msg; dire(msg);
           etat("Appuie sur le micro, puis parle.");
