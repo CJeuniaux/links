@@ -115,14 +115,40 @@ window.CONTENU = {
     { id: "IRp-3mvWLJM", titre: "L'abondance des océans", source: "ARTE" },
     { id: "Qpw1Ru3xBds", titre: "La Terre en mouvements", source: "ARTE" },
 
-    // Cinéma
+  ],
+
+  // ------------------------------------------------------------------
+  // FILMS — même principe, pour la tuile « Films ».
+  // Priorité aux œuvres du domaine public et aux chaînes officielles.
+  // ------------------------------------------------------------------
+  films: [
+    // Films complets (muets : pas besoin de bien entendre)
+    { id: "HaPOLsO_3I0", titre: "Le Voyage dans la Lune (1902, en couleur)", source: "Georges Méliès" },
+    { id: "BRnfb27xSOU", titre: "Metropolis (1927)", source: "Fritz Lang" },
+    { id: "5OwSThj36A4", titre: "Le Mécano de la Générale (1926)", source: "Buster Keaton" },
+    { id: "snARvnXy6IM", titre: "Charlot : L'Émigrant (1917)", source: "Charlie Chaplin" },
+    { id: "0DKkBm79fus", titre: "Charlot s'évade (1917)", source: "Charlie Chaplin" },
+    { id: "RJq-kSSOvfg", titre: "Quatre courts métrages de Charlot", source: "Charlie Chaplin" },
+
+    // Autour des grands films
+    { id: "XHdyZs_2VFE", titre: "Les Temps modernes, raconté par les frères Dardenne", source: "Chaplin aujourd'hui" },
+    { id: "qIIfQFNzOf8", titre: "Le Kid, raconté par Kiarostami", source: "Chaplin aujourd'hui" },
     { id: "s0jszQuTAXA", titre: "Hitchcock raconté par Truffaut", source: "INA" },
     { id: "rFRgJzNtiZo", titre: "Truffaut présente Hitchcock", source: "Entrée libre" },
     { id: "x_cAbeWqZwY", titre: "Jean-Paul Belmondo", source: "ARTE Blow Up" },
     { id: "SWNoJ9GAUcc", titre: "L'année 1977 au cinéma", source: "ARTE Blow Up" },
-    { playlist: "UUfE1oQ47oqyJNzM-nFy_gjA", vignette: "x_cAbeWqZwY", titre: "Le cinéma, au hasard", source: "ARTE Blow Up" },
-    { id: "snARvnXy6IM", titre: "Charlot : L'Émigrant (1917)", source: "Chaplin" },
-    { id: "0DKkBm79fus", titre: "Charlot s'évade (1917)", source: "Chaplin" },
-    { id: "RJq-kSSOvfg", titre: "Quatre courts métrages de Charlot", source: "Chaplin" },
+    { playlist: "UUfE1oQ47oqyJNzM-nFy_gjA", vignette: "LRA-FbH1BGY", titre: "Le cinéma, au hasard", source: "ARTE Blow Up" },
+
+    // Science-fiction
+    { id: "61R6zx_kjeg", titre: "Les 50 ans de 2001, l'Odyssée de l'espace", source: "ARTE Blow Up" },
+    { id: "LRA-FbH1BGY", titre: "Stanley Kubrick tout en images", source: "ARTE Blow Up" },
+    { id: "8O5ntvGHqy4", titre: "Les voyages dans l'espace au cinéma", source: "ARTE Blow Up" },
+    { id: "SAAQNV_43Vk", titre: "Les extraterrestres au cinéma", source: "ARTE Blow Up" },
+    { id: "ZWkKRmliXFA", titre: "Les robots au cinéma", source: "ARTE Blow Up" },
+    { id: "YT8pTHo_K4E", titre: "E.T. l'extra-terrestre en 9 minutes", source: "ARTE Blow Up" },
+    { id: "Ul5g9W_5QXM", titre: "Rencontres du troisième type en 9 minutes", source: "ARTE Blow Up" },
+    { id: "Ysw6DvFi9nU", titre: "Les génériques de science-fiction", source: "ARTE Blow Up" },
+    { id: "rLtzxlF6Fak", titre: "La Guerre des mondes : quand Mars attaque", source: "ARTE" },
+    { id: "YDJN8CGGAZw", titre: "Jules Verne, le voyageur de l'imaginaire", source: "Culture Prime" },
   ],
 };

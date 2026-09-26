@@ -5,7 +5,8 @@ Une seule page web, en plein écran, pensée pour une personne âgée qui voit m
 - **Accueil** : « Bonjour Papa ! », la date, l'heure et le moment de la journée en gros. En dessous, 3 grandes tuiles avec des images.
 - **Messages de la famille** : un message à la fois, en très gros, avec la photo de la personne qui écrit. Le message est **lu à voix haute** automatiquement.
 - **Le savant du jour** : chaque jour, un scientifique (priorité aux biochimistes et aux Belges), avec sa photo et 3 phrases tirées de Wikipédia, lues à voix haute.
-- **Vidéos** : environ 40 vidéos et séries (ARTE, « C'est pas sorcier », « Il était une fois… », Chaplin, cinéma), mélangées chaque jour. Il y a 3 choix à la fois, et un bouton « D'autres choix ». Il ne voit jamais l'interface de YouTube. Une vidéo supprimée ou non intégrable est sautée automatiquement.
+- **Films** : films muets complets du domaine public (Méliès, Metropolis, Keaton, Chaplin), science-fiction et grands cinéastes racontés par ARTE Blow Up.
+- **Documentaires** : environ 40 vidéos et séries (ARTE, « C'est pas sorcier », « Il était une fois… », Chaplin, cinéma), mélangées chaque jour. Il y a 3 choix à la fois, et un bouton « D'autres choix ». Il ne voit jamais l'interface de YouTube. Une vidéo supprimée ou non intégrable est sautée automatiquement.
 
 Garde-fous :
 - un gros bouton **⬅ Retour** toujours au même endroit ;
@@ -16,7 +17,7 @@ Garde-fous :
 - messages rechargés toutes les 10 minutes ;
 - **quand on rouvre le capot**, la page revient à l'accueil et une voix dit bonjour, la date et l'heure. On peut couper la voix dans `contenu.js`.
 
-Raccourcis clavier : `1`, `2` et `3` ouvrent les tuiles, les flèches passent d'un bouton à l'autre, `Entrée` valide.
+Raccourcis clavier : `1` à `4` ouvrent les tuiles, les flèches passent d'un bouton à l'autre, `Entrée` valide.
 
 ---
 
