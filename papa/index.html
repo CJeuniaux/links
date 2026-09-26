@@ -162,25 +162,32 @@
     .pause .quand { font-size: clamp(24px, 4vh, 48px); font-weight: 400; color: var(--doux); font-style: italic; }
 
     /* ---------- Discuter ---------- */
-    .conversation { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 3vh; min-height: 0; }
+    /* La conversation reste dans sa zone : jamais sur le bouton Retour ni sur le micro. */
+    .conversation { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 2vh; min-height: 0; overflow: hidden; }
     .bulle {
-      border-radius: 26px; padding: 3vh 3vw; font-size: clamp(30px, 5.4vh, 66px); line-height: 1.3;
-      box-shadow: 0 8px 22px rgba(70,50,20,.12); border: 2px solid var(--or-clair);
+      border-radius: 26px; padding: 2.4vh 2.6vw; line-height: 1.3;
+      box-shadow: 0 8px 22px rgba(70,50,20,.12); border: 2px solid var(--or-clair); overflow: hidden;
     }
     .bulle:empty { display: none; }
-    .bulle.lui { background: #efe5d0; color: var(--doux); align-self: flex-start; max-width: 85%; font-style: italic; }
-    .bulle.ordi { background: var(--carte); align-self: flex-end; max-width: 92%; }
-    .micro-zone { display: flex; align-items: center; justify-content: center; gap: 3vw; }
+    .bulle.lui { background: #efe5d0; color: var(--doux); align-self: flex-start; max-width: 85%; font-style: italic; font-size: clamp(20px, 3.2vh, 38px); flex-shrink: 0; max-height: 18vh; }
+    .bulle.ordi { background: var(--carte); align-self: stretch; font-size: clamp(30px, 5.2vh, 64px); min-height: 0; flex-shrink: 1; }
+    /* Barre du bas : consigne à gauche, micro au centre, Réécouter à droite, bien espacés. */
+    .micro-zone {
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 7vw;
+      padding-top: 1.6vh; border-top: 1.5px solid var(--or-clair); flex-shrink: 0;
+    }
+    .micro-zone .etat { text-align: right; }
+    .zone-reecouter { display: flex; justify-content: flex-start; }
     .micro {
-      width: 21vh; height: 21vh; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #9a2a3a, var(--bordeaux));
+      width: 19vh; height: 19vh; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #9a2a3a, var(--bordeaux));
       color: #fff; font-size: 10vh; border: 4px solid var(--or);
       box-shadow: 0 12px 30px rgba(123,30,43,.35); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
     .micro:hover { box-shadow: 0 0 0 8px var(--jaune), 0 12px 30px rgba(123,30,43,.35); }
     .micro.ecoute { animation: pulse 1.2s ease-in-out infinite; }
     @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(184,145,63,.7); } 50% { box-shadow: 0 0 0 4vh rgba(184,145,63,0); } }
-    .etat { font-family: "Lora", Georgia, serif; font-size: clamp(28px, 4.8vh, 58px); font-weight: 700; color: var(--brun); }
-    .reecouter { font-size: clamp(22px, 3.4vh, 40px); padding: 1.2vh 2vw; background: var(--bronze); }
+    .etat { font-family: "Lora", Georgia, serif; font-size: clamp(24px, 4vh, 48px); font-weight: 700; color: var(--brun); line-height: 1.2; }
+    .reecouter { font-size: clamp(24px, 4vh, 48px); padding: 1.8vh 2.6vw; background: var(--bronze); }
 
     .lecteur iframe, .lecteur > div { width: 100%; height: 100%; border: 0; }
   </style>
@@ -280,9 +287,9 @@
       <div class="bulle ordi" id="disc-ordi"></div>
     </div>
     <div class="micro-zone">
+      <div class="etat" id="disc-etat">Appuie sur le micro, puis parle.</div>
       <button class="micro" id="disc-micro" aria-label="Parler">🎤</button>
-      <div>
-        <div class="etat" id="disc-etat">Appuie sur le micro, puis parle.</div>
+      <div class="zone-reecouter">
         <button class="gros-btn reecouter" id="disc-reecouter" style="display:none">🔊 Réécouter</button>
       </div>
     </div>
@@ -866,6 +873,23 @@
     var Reco = window.SpeechRecognition || window.webkitSpeechRecognition;
     var reco = null, historique = [], ecoute = false, relances = 0;
     function etat(t) { $("disc-etat").textContent = t; }
+    // Réduit la taille du texte d'une bulle jusqu'à ce qu'il tienne dans l'espace disponible.
+    function ajusterBulles() {
+      var zone = document.querySelector("#discuter .conversation");
+      var ordi = $("disc-ordi"), lui = $("disc-lui");
+      if (!zone || ecranActuel !== "discuter") return;
+      ordi.style.fontSize = ""; lui.style.fontSize = "";
+      var taille = parseFloat(getComputedStyle(ordi).fontSize), mini = 18, n = 0;
+      while ((ordi.scrollHeight > ordi.clientHeight + 1 || zone.scrollHeight > zone.clientHeight + 1) && taille > mini && n++ < 40) {
+        taille -= 2; ordi.style.fontSize = taille + "px";
+      }
+      var t2 = parseFloat(getComputedStyle(lui).fontSize); n = 0;
+      while (lui.scrollHeight > lui.clientHeight + 1 && t2 > 16 && n++ < 20) { t2 -= 2; lui.style.fontSize = t2 + "px"; }
+    }
+    window.addEventListener("resize", ajusterBulles);
+    new MutationObserver(ajusterBulles).observe($("disc-ordi"), { childList: true, characterData: true, subtree: true });
+    new MutationObserver(ajusterBulles).observe($("disc-lui"), { childList: true, characterData: true, subtree: true });
+
     function montrerErreurVoix(erreur) {
       var voix = voixFr ? voixFr.name : "aucune voix française";
       $("disc-etat").innerHTML = "Appuie sur le micro, puis parle.<br><small style=\"font-size:.45em;font-weight:400;color:#8a7a60\">Info : " +
