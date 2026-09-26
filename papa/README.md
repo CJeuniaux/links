@@ -43,7 +43,7 @@ Conseils pour écrire les messages : des phrases courtes, qui ne demandent pas d
 
 ## 3. Ouvrir le capot = son écran, et rien d'autre
 
-**Option A, gratuite (fonctionne dans 95 % des cas).** On laisse la page ouverte en plein écran, et le Chromebook ne se verrouille jamais. Quand il ferme le capot, l'ordinateur dort. Quand il l'ouvre, il retrouve exactement « Mon écran », revenu tout seul à l'accueil. Les réglages sont juste en dessous. Limite : après un vrai redémarrage (batterie vide, mise à jour), il faut retaper le mot de passe. Mettez un code PIN court et donnez-le au personnel.
+**Option A, gratuite (fonctionne dans 95 % des cas).** On laisse la page ouverte en plein écran, et le Chromebook ne se verrouille jamais. Quand il ferme le capot, l'ordinateur dort. Quand il l'ouvre, il retrouve exactement « Mon écran », revenu tout seul à l'accueil. Les réglages sont juste en dessous. Limite : après un vrai redémarrage (batterie vide, mise à jour), il faut retaper le mot de passe. ChromeOS ne permet pas de s'en passer sans l'option B. Gardez le Chromebook branché en permanence pour limiter les redémarrages.
 
 **Option B, le vrai mode borne (payant).** Avec la licence Google « Kiosk & Signage Upgrade », le Chromebook démarre directement sur la page, sans mot de passe, sans barre et sans possibilité d'en sortir, même après un redémarrage. Il faut :
 1. acheter la licence pour ce Chromebook (environ 25 € par an, prix à vérifier) ;
