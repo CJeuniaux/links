@@ -6,6 +6,9 @@ window.CONTENU = {
   // Comment l'écran l'appelle : « Bonjour Papa »
   prenom: "Papa",
 
+  // Quand on rouvre l'ordinateur, une voix dit bonjour, la date et l'heure.
+  direBonjourAuReveil: true,
+
   // ------------------------------------------------------------------
   // MESSAGES DE LA FAMILLE
   // Lien CSV d'une Google Sheet « publiée sur le web » (voir README.md).
@@ -62,15 +65,64 @@ window.CONTENU = {
   ],
 
   // ------------------------------------------------------------------
-  // DOCUMENTAIRES — vidéos YouTube. « id » = ce qui suit « watch?v= ».
-  // L'écran en propose 3 par jour, en tournant dans la liste.
+  // VIDÉOS — YouTube. « id » = ce qui suit « watch?v= » dans l'adresse.
+  // « playlist » = ce qui suit « list= » : un épisode au hasard de la série
+  //   (« vignette » = id d'une vidéo dont on montre l'image).
+  // L'écran en montre 3 à la fois, avec un bouton « D'autres choix ».
+  // Une vidéo supprimée ou non intégrable est sautée automatiquement.
+  // Les vidéos ARTE ont souvent une date limite : pensez à en rajouter.
   // ------------------------------------------------------------------
   videos: [
+    // Séries entières : un épisode au hasard à chaque fois
+    { playlist: "PLTm-CF7d2xQ5PMrTmSa9VAXJ5QUYxDwrU", vignette: "L029mQsKlxM", titre: "Un épisode au hasard", source: "C'est pas sorcier" },
+    { playlist: "PLIfEw7GtDnKWMXQj5TQblyuWTxpCMg29g", vignette: "IL3XOjI61Y8", titre: "Un épisode au hasard", source: "Il était une fois… la Vie" },
+    { playlist: "PLIfEw7GtDnKU7_FKW0HxGlJP_dLqsRfph", vignette: "h8ojSsEfDpY", titre: "Un épisode au hasard", source: "Il était une fois… les Découvreurs" },
+
+    // Biologie, chimie, médecine
     { id: "YgTcmasv5Po", titre: "L'ADN et les liens entre les espèces", source: "C'est pas sorcier" },
-    { id: "FVsta51URtg", titre: "Marie Curie, au-delà du mythe", source: "Arte" },
+    { id: "0jY99GX1gG4", titre: "Pasteur et Koch, le duel des microbes", source: "ARTE" },
+    { id: "FVsta51URtg", titre: "Marie Curie, au-delà du mythe", source: "ARTE" },
     { id: "IL3XOjI61Y8", titre: "Le système immunitaire", source: "Il était une fois… la Vie" },
+    { id: "YJslog4bLkA", titre: "Le sang, c'est la vie", source: "C'est toujours pas sorcier" },
+    { id: "qWr8yA-ZhBI", titre: "Le cerveau", source: "C'est pas sorcier" },
+    { id: "eMTFM5D-0Dc", titre: "Les secrets du cerveau (1)", source: "ARTE" },
+    { id: "7FFmIfNHBVU", titre: "Les secrets du cerveau (2)", source: "ARTE" },
     { id: "kNnxjwdBA54", titre: "Les maladies génétiques", source: "C'est pas sorcier" },
     { id: "PqyDgi_TY58", titre: "Les OGM", source: "C'est pas sorcier" },
     { id: "Ee_28BDkSjE", titre: "Les débuts de la vie", source: "Il était une fois… la Vie" },
+    { id: "mt3_aq73kwA", titre: "Le cycle de la vie", source: "Il était une fois… la Vie" },
+    { id: "IIuq0tYAvzo", titre: "La naissance", source: "Il était une fois… la Vie" },
+    { id: "6lmrtHhiBuo", titre: "Quelle est l'origine de la vie ?", source: "ARTE" },
+    { id: "nmxdZaoU804", titre: "La vie venue des astéroïdes", source: "ARTE" },
+    { id: "8Dp9X4OLn0A", titre: "L'adaptation humaine et les gènes", source: "ARTE" },
+
+    // Grands savants
+    { id: "h8ojSsEfDpY", titre: "Les premiers scientifiques", source: "Il était une fois… les Découvreurs" },
+    { id: "C-2NREe9fAc", titre: "Des gaz aux radiations", source: "Il était une fois… les Découvreurs" },
+    { id: "ft8hj9yrZlk", titre: "La Terre et la vie", source: "Il était une fois… les Découvreurs" },
+    { id: "jxGa-pqYY2g", titre: "La révolution de la physique", source: "Il était une fois… les Découvreurs" },
+    { id: "u-nsNlUPyYA", titre: "Électricité et lumière", source: "Il était une fois… les Découvreurs" },
+    { id: "cdP9bNU2e8A", titre: "Le rêve de voler", source: "Il était une fois… les Découvreurs" },
+    { id: "QXaOzNzMNQo", titre: "La course à la Lune", source: "Il était une fois… les Découvreurs" },
+    { id: "4KCtPOwG9eA", titre: "Einstein et Hawking, l'Univers dévoilé", source: "ARTE" },
+
+    // Espace, Terre, océans
+    { id: "EOzZgdkJtGI", titre: "Origines, un conte de la lumière", source: "ARTE" },
+    { id: "L029mQsKlxM", titre: "Le système solaire", source: "C'est pas sorcier" },
+    { id: "-Ro6ptyxI3U", titre: "Comment s'est formé le système solaire", source: "C'est pas sorcier" },
+    { id: "b_D4Uey9toM", titre: "Abysses, la face cachée des océans", source: "ARTE" },
+    { id: "UKDJ3QaVRvM", titre: "Les épaves, oasis de la mer", source: "ARTE" },
+    { id: "IRp-3mvWLJM", titre: "L'abondance des océans", source: "ARTE" },
+    { id: "Qpw1Ru3xBds", titre: "La Terre en mouvements", source: "ARTE" },
+
+    // Cinéma
+    { id: "s0jszQuTAXA", titre: "Hitchcock raconté par Truffaut", source: "INA" },
+    { id: "rFRgJzNtiZo", titre: "Truffaut présente Hitchcock", source: "Entrée libre" },
+    { id: "x_cAbeWqZwY", titre: "Jean-Paul Belmondo", source: "ARTE Blow Up" },
+    { id: "SWNoJ9GAUcc", titre: "L'année 1977 au cinéma", source: "ARTE Blow Up" },
+    { playlist: "UUfE1oQ47oqyJNzM-nFy_gjA", vignette: "x_cAbeWqZwY", titre: "Le cinéma, au hasard", source: "ARTE Blow Up" },
+    { id: "snARvnXy6IM", titre: "Charlot : L'Émigrant (1917)", source: "Chaplin" },
+    { id: "0DKkBm79fus", titre: "Charlot s'évade (1917)", source: "Chaplin" },
+    { id: "RJq-kSSOvfg", titre: "Quatre courts métrages de Charlot", source: "Chaplin" },
   ],
 };

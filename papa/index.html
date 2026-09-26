@@ -101,7 +101,7 @@
     .choix-videos .tuile { background: var(--orange); }
     .choix-videos .libelle { font-size: clamp(24px, 3.6vh, 44px); }
     .lecteur { flex: 1; border-radius: 20px; overflow: hidden; background: #000; }
-    .lecteur iframe { width: 100%; height: 100%; border: 0; }
+    .lecteur iframe, .lecteur > div { width: 100%; height: 100%; border: 0; }
   </style>
 </head>
 <body>
@@ -123,7 +123,7 @@
       </button>
       <button class="tuile t-videos" data-aller="videos">
         <div class="image" id="img-videos">🎬</div>
-        <div class="libelle">Documentaires<span class="sous">à regarder</span></div>
+        <div class="libelle">Vidéos<span class="sous">et cinéma</span></div>
       </button>
     </div>
   </section>
@@ -173,6 +173,9 @@
       <div class="titre">Que veux-tu regarder ?</div>
     </div>
     <div class="choix-videos" id="choix-videos"></div>
+    <div class="actions">
+      <button class="gros-btn" style="background:var(--bleu)" id="autres-videos">D'autres choix ➡</button>
+    </div>
   </section>
 
   <section class="ecran" id="lecture">
@@ -220,7 +223,7 @@
     // ---------- Navigation ----------
     function aller(nom) {
       taire();
-      if (ecranActuel === "lecture" && nom !== "lecture") $("lecteur").innerHTML = "";
+      if (ecranActuel === "lecture" && nom !== "lecture") arreterLecteur();
       document.querySelectorAll(".ecran").forEach(function (e) { e.classList.toggle("actif", e.id === nom); });
       ecranActuel = nom;
       if (nom === "messages") ouvrirMessages();
@@ -413,24 +416,40 @@
     }
     $("sav-ecouter").addEventListener("click", function () { if (savant) dire(savant.nom + ". " + savantTexte); });
 
-    // ---------- Documentaires ----------
-    var videosDuJour = (function () {
-      var v = C.videos || [];
-      if (v.length <= 3) return v;
-      var debut = (jourNumero() * 3) % v.length, r = [];
-      for (var i = 0; i < 3; i++) r.push(v[(debut + i) % v.length]);
+    // ---------- Vidéos ----------
+    // Ordre mélangé différemment chaque jour ; 3 choix à la fois.
+    function melange(liste, graine) {
+      var r = liste.slice(), x = graine || 1;
+      for (var i = r.length - 1; i > 0; i--) {
+        x = (x * 9301 + 49297) % 233280;
+        var j = Math.floor(x / 233280 * (i + 1));
+        var t = r[i]; r[i] = r[j]; r[j] = t;
+      }
       return r;
-    })();
+    }
+    var mauvaises = lire("videosMauvaises", []);
+    function videosValides() {
+      return (C.videos || []).filter(function (v) { return mauvaises.indexOf(v.id || v.playlist) < 0; });
+    }
+    var toutesVideos = melange(videosValides(), jourNumero());
+    var pageVideos = 0;
+    function vignette(v) { return "https://i.ytimg.com/vi/" + encodeURIComponent(v.vignette || v.id) + "/hqdefault.jpg"; }
+    function videosAffichees() {
+      if (!toutesVideos.length) return [];
+      var r = [];
+      for (var i = 0; i < Math.min(3, toutesVideos.length); i++) r.push(toutesVideos[(pageVideos * 3 + i) % toutesVideos.length]);
+      return r;
+    }
 
     function construireVideos() {
       var zone = $("choix-videos");
       zone.innerHTML = "";
-      videosDuJour.forEach(function (v) {
+      videosAffichees().forEach(function (v) {
         var b = document.createElement("button");
         b.className = "tuile";
         var img = document.createElement("div");
         img.className = "image";
-        fond(img, "https://i.ytimg.com/vi/" + encodeURIComponent(v.id) + "/hqdefault.jpg");
+        fond(img, vignette(v));
         var lib = document.createElement("div");
         lib.className = "libelle";
         lib.textContent = v.titre;
@@ -442,17 +461,69 @@
         zone.appendChild(b);
       });
     }
+    $("autres-videos").addEventListener("click", function () { pageVideos++; construireVideos(); });
 
-    function lancer(v) {
-      $("lecture-titre").textContent = v.titre;
-      var f = document.createElement("iframe");
-      f.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(v.id) +
-              "?autoplay=1&rel=0&modestbranding=1&playsinline=1&hl=fr&cc_lang_pref=fr";
-      f.allow = "autoplay; encrypted-media; fullscreen";
-      f.allowFullscreen = true;
+    // Lecteur YouTube (API officielle) : saute les vidéos indisponibles,
+    // revient aux choix quand la vidéo est finie.
+    var lecteur = null, videoEnCours = null, apiPrete = null, erreursDeSuite = 0;
+    function chargerApi() {
+      if (apiPrete) return apiPrete;
+      apiPrete = new Promise(function (ok) {
+        window.onYouTubeIframeAPIReady = ok;
+        var sc = document.createElement("script");
+        sc.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(sc);
+      });
+      return apiPrete;
+    }
+    function arreterLecteur() {
+      if (lecteur && lecteur.destroy) { try { lecteur.destroy(); } catch (e) {} }
+      lecteur = null; videoEnCours = null;
       $("lecteur").innerHTML = "";
-      $("lecteur").appendChild(f);
+    }
+    function lancer(v) {
+      arreterLecteur();
+      videoEnCours = v;
+      $("lecture-titre").textContent = v.titre;
+      var div = document.createElement("div");
+      $("lecteur").appendChild(div);
       aller("lecture");
+      var vars = { autoplay: 1, rel: 0, modestbranding: 1, playsinline: 1, hl: "fr", cc_lang_pref: "fr", iv_load_policy: 3 };
+      if (v.playlist) { vars.listType = "playlist"; vars.list = v.playlist; }
+      chargerApi().then(function () {
+        if (videoEnCours !== v) return;
+        lecteur = new YT.Player(div, {
+          host: "https://www.youtube-nocookie.com",
+          width: "100%", height: "100%",
+          videoId: v.playlist ? undefined : v.id,
+          playerVars: vars,
+          events: {
+            onReady: function (e) {
+              if (v.playlist) {
+                e.target.setShuffle(true);
+                var n = (e.target.getPlaylist() || []).length;
+                e.target.playVideoAt(n ? Math.floor(Math.random() * n) : 0);
+              } else e.target.playVideo();
+            },
+            onStateChange: function (e) {
+              if (e.data === YT.PlayerState.PLAYING) erreursDeSuite = 0;
+              if (e.data === YT.PlayerState.ENDED && !v.playlist) aller("videos");
+            },
+            onError: function (e) {
+              // 100 = supprimée, 101/150 = intégration interdite : on n'y revient plus
+              if (!v.playlist && [100, 101, 150].indexOf(e.data) >= 0) {
+                mauvaises.push(v.id); ecrire("videosMauvaises", mauvaises.slice(-100));
+                toutesVideos = toutesVideos.filter(function (x) { return x !== v; });
+                construireVideos();
+              }
+              if (++erreursDeSuite > 5) { erreursDeSuite = 0; aller("videos"); return; }
+              var autres = toutesVideos.filter(function (x) { return x !== v; });
+              if (autres.length) lancer(autres[Math.floor(Math.random() * autres.length)]);
+              else aller("videos");
+            }
+          }
+        });
+      });
     }
 
     // ---------- Images des tuiles d'accueil ----------
@@ -465,7 +536,7 @@
       if (dernier && photoDe(dernier)) fond(im, photoDe(dernier)); else im.textContent = "✉️";
       if (n > 0) { var p = document.createElement("span"); p.className = "pastille"; p.textContent = n; im.appendChild(p); }
       if (savantImage) fond($("img-savant"), savantImage);
-      if (videosDuJour[0]) fond($("img-videos"), "https://i.ytimg.com/vi/" + encodeURIComponent(videosDuJour[0].id) + "/hqdefault.jpg");
+      if (toutesVideos[0]) fond($("img-videos"), vignette(toutesVideos[0]));
     }
 
     construireVideos();
@@ -476,6 +547,23 @@
     // Au changement de jour, on recharge tout (nouveau savant, nouvelles vidéos)
     var jour = jourNumero();
     setInterval(function () { if (jourNumero() !== jour && ecranActuel === "accueil") location.reload(); }, 60 * 1000);
+
+    // Réveil : quand on rouvre le capot, on repart toujours de l'accueil
+    var dernierTic = Date.now();
+    function auReveil() {
+      if (jourNumero() !== jour) { location.reload(); return; }
+      aller("accueil");
+      chargerMessages();
+      majHorloge();
+      if (C.direBonjourAuReveil !== false) {
+        setTimeout(function () { dire($("bonjour").textContent + " " + $("quand").textContent); }, 1500);
+      }
+    }
+    setInterval(function () {
+      var maintenant = Date.now();
+      if (maintenant - dernierTic > 2 * 60 * 1000) auReveil(); // l'ordinateur dormait
+      dernierTic = maintenant;
+    }, 10 * 1000);
   })();
   </script>
 </body>
