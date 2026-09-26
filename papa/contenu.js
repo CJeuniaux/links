@@ -9,6 +9,10 @@ window.CONTENU = {
   // Quand on rouvre l'ordinateur, une voix dit bonjour, la date et l'heure.
   direBonjourAuReveil: true,
 
+  // Lire à voix haute les messages, nouvelles et le savant dès qu'on les ouvre.
+  // false = seulement quand il appuie sur « 🔊 Écouter ».
+  lectureAutomatique: false,
+
   // Avant de fermer la fenêtre, Chrome demande « Quitter le site ? ».
   // Mettre false pour enlever cette question.
   bloquerFermeture: true,

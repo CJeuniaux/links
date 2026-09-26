@@ -333,6 +333,8 @@
       if (fin) { var fait = false; u.onend = u.onerror = function () { if (!fait) { fait = true; fin(); } }; }
       speechSynthesis.speak(u);
     }
+    // Lecture à l'ouverture d'un écran : seulement si activée dans contenu.js.
+    function direAuto(texte) { if (C.lectureAutomatique === true) dire(texte); }
     function taire() { if ("speechSynthesis" in window) speechSynthesis.cancel(); }
 
     // ---------- Navigation ----------
@@ -501,7 +503,7 @@
       $("msg-suivant").style.display = messages.length > 1 ? "" : "none";
       var lus = lire("messagesLus", []);
       if (lus.indexOf(cleMessage(m)) < 0) { lus.push(cleMessage(m)); ecrire("messagesLus", lus.slice(-200)); }
-      dire((m.de ? "Message de " + m.de + ". " : "") + m.texte);
+      direAuto((m.de ? "Message de " + m.de + ". " : "") + m.texte);
     }
 
     function dateLisible(s) {
@@ -555,7 +557,7 @@
       fond(p, savantImage);
       $("sav-nom").textContent = savant.nom;
       $("sav-texte").textContent = savantTexte;
-      dire(savant.nom + ". " + savantTexte);
+      direAuto(savant.nom + ". " + savantTexte);
     }
     $("sav-ecouter").addEventListener("click", function () { if (savant) dire(savant.nom + ". " + savantTexte); });
 
@@ -744,7 +746,7 @@
       $("nv-texte").textContent = n.texte;
       $("nv-source").textContent = n.source ? "Source : " + n.source : "";
       $("nv-suivant").style.display = nouvelles.length > 1 ? "" : "none";
-      dire(n.titre + ". " + n.texte);
+      direAuto(n.titre + ". " + n.texte);
     }
     function ouvrirNouvelles() { indexNouvelle = 0; afficherNouvelle(); }
     $("nv-suivant").addEventListener("click", function () { indexNouvelle++; afficherNouvelle(); });
