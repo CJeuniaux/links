@@ -13,6 +13,10 @@ window.CONTENU = {
   // Mettre false pour enlever cette question.
   bloquerFermeture: true,
 
+  // Pendant un film, une pause « Continuer ? » est proposée après ce nombre de minutes.
+  // Les films reprennent toujours là où ils s'étaient arrêtés.
+  pauseMinutes: 30,
+
   // ------------------------------------------------------------------
   // MESSAGES DE LA FAMILLE
   // Lien CSV d'une Google Sheet « publiée sur le web » (voir README.md).

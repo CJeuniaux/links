@@ -102,6 +102,11 @@
     .choix-videos .tuile { background: var(--orange); }
     .choix-videos .libelle { font-size: clamp(24px, 3.6vh, 44px); }
     .lecteur { flex: 1; border-radius: 20px; overflow: hidden; background: #000; }
+    .pause {
+      display: none; position: fixed; inset: 0; background: var(--fond); z-index: 10;
+      flex-direction: column; align-items: center; justify-content: center; gap: 6vh; text-align: center;
+    }
+    .pause.visible { display: flex; }
     .lecteur iframe, .lecteur > div { width: 100%; height: 100%; border: 0; }
   </style>
 </head>
@@ -189,6 +194,14 @@
       <div class="titre" id="lecture-titre"></div>
     </div>
     <div class="lecteur" id="lecteur"></div>
+    <div class="pause" id="pause">
+      <div class="titre">On fait une petite pause ?</div>
+      <div class="actions">
+        <button class="gros-btn" style="background:var(--vert)" id="pause-continuer">▶ Continuer le film</button>
+        <button class="gros-btn" style="background:var(--retour)" id="pause-arreter">⬅ Arrêter pour aujourd'hui</button>
+      </div>
+      <div class="quand">Le film reprendra ici la prochaine fois.</div>
+    </div>
   </section>
 
   <script src="contenu.js"></script>
@@ -494,7 +507,33 @@
       });
       return apiPrete;
     }
+    // Reprise là où on s'était arrêté + pause toutes les 30 minutes
+    var PAUSE_MS = (C.pauseMinutes || 30) * 60 * 1000;
+    var suivi = null, tempsVu = 0;
+    function positions() { return lire("positions", {}); }
+    function memoriserPosition() {
+      if (!lecteur || !videoEnCours || videoEnCours.playlist || !lecteur.getCurrentTime) return;
+      var t = lecteur.getCurrentTime(), d = lecteur.getDuration ? lecteur.getDuration() : 0;
+      var p = positions();
+      if (t > 60 && (!d || t < d - 120)) p[videoEnCours.id] = Math.floor(t); else delete p[videoEnCours.id];
+      ecrire("positions", p);
+    }
+    function suivreLecture() {
+      clearInterval(suivi); tempsVu = 0;
+      suivi = setInterval(function () {
+        if (!lecteur || !lecteur.getPlayerState || lecteur.getPlayerState() !== YT.PlayerState.PLAYING) return;
+        memoriserPosition();
+        tempsVu += 10000;
+        if (tempsVu >= PAUSE_MS) { tempsVu = 0; lecteur.pauseVideo(); taire(); $("pause").classList.add("visible"); $("pause-continuer").focus(); dire("On fait une petite pause ?"); }
+      }, 10000);
+    }
+    $("pause-continuer").addEventListener("click", function () { $("pause").classList.remove("visible"); if (lecteur) lecteur.playVideo(); });
+    $("pause-arreter").addEventListener("click", function () { $("pause").classList.remove("visible"); aller("videos"); });
+
     function arreterLecteur() {
+      memoriserPosition();
+      clearInterval(suivi);
+      $("pause").classList.remove("visible");
       if (lecteur && lecteur.destroy) { try { lecteur.destroy(); } catch (e) {} }
       lecteur = null; videoEnCours = null;
       $("lecteur").innerHTML = "";
@@ -521,11 +560,19 @@
                 e.target.setShuffle(true);
                 var n = (e.target.getPlaylist() || []).length;
                 e.target.playVideoAt(n ? Math.floor(Math.random() * n) : 0);
-              } else e.target.playVideo();
+              } else {
+                var dejaVu = positions()[v.id];
+                if (dejaVu) e.target.seekTo(dejaVu, true);
+                e.target.playVideo();
+              }
+              suivreLecture();
             },
             onStateChange: function (e) {
               if (e.data === YT.PlayerState.PLAYING) erreursDeSuite = 0;
-              if (e.data === YT.PlayerState.ENDED && !v.playlist) aller("videos");
+              if (e.data === YT.PlayerState.ENDED && !v.playlist) {
+                var p = positions(); delete p[v.id]; ecrire("positions", p);
+                videoEnCours = null; aller("videos");
+              }
             },
             onError: function (e) {
               // 100 = supprimée, 101/150 = intégration interdite : on n'y revient plus
