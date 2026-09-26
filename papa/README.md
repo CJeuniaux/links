@@ -1,4 +1,4 @@
-# Mon écran : l'écran d'accueil de Papa
+# Le bureau de Papa : l'écran d'accueil de Papa
 
 Une seule page web, en plein écran, pensée pour une personne âgée qui voit mal et a des troubles de la mémoire. Elle se pilote à la souris ou au clavier. L'écran n'est pas tactile.
 
@@ -43,7 +43,7 @@ Conseils pour écrire les messages : des phrases courtes, qui ne demandent pas d
 
 ## 3. Ouvrir le capot = son écran, et rien d'autre
 
-**Option A, gratuite (fonctionne dans 95 % des cas).** On laisse la page ouverte en plein écran, et le Chromebook ne se verrouille jamais. Quand il ferme le capot, l'ordinateur dort. Quand il l'ouvre, il retrouve exactement « Mon écran », revenu tout seul à l'accueil. Les réglages sont juste en dessous. Limite : après un vrai redémarrage (batterie vide, mise à jour), il faut retaper le mot de passe. ChromeOS ne permet pas de s'en passer sans l'option B. Gardez le Chromebook branché en permanence pour limiter les redémarrages.
+**Option A, gratuite (fonctionne dans 95 % des cas).** On laisse la page ouverte en plein écran, et le Chromebook ne se verrouille jamais. Quand il ferme le capot, l'ordinateur dort. Quand il l'ouvre, il retrouve exactement « Le bureau de Papa », revenu tout seul à l'accueil. Les réglages sont juste en dessous. Limite : après un vrai redémarrage (batterie vide, mise à jour), il faut retaper le mot de passe. ChromeOS ne permet pas de s'en passer sans l'option B. Gardez le Chromebook branché en permanence pour limiter les redémarrages.
 
 **Option B, le vrai mode borne (payant).** Avec la licence Google « Kiosk & Signage Upgrade », le Chromebook démarre directement sur la page, sans mot de passe, sans barre et sans possibilité d'en sortir, même après un redémarrage. Il faut :
 1. acheter la licence pour ce Chromebook (environ 25 € par an, prix à vérifier) ;
@@ -55,7 +55,7 @@ C'est la solution la plus robuste si l'option A ne suffit pas.
 ## 4. Réglages du Chromebook (15 minutes, à faire une fois)
 
 1. **Grand curseur** : Paramètres → Accessibilité → Curseur et pavé tactile → « Afficher un grand curseur ». Réglez la taille au maximum et choisissez une couleur vive.
-2. **Masquer la barre du bas** : clic droit sur la barre → « Masquer automatiquement l'étagère ». Retirez aussi de la barre toutes les applications épinglées, sauf « Mon écran ».
+2. **Masquer la barre du bas** : clic droit sur la barre → « Masquer automatiquement l'étagère ». Retirez aussi de la barre toutes les applications épinglées, sauf « Le bureau de Papa ».
 3. **Installer la page comme une application** : ouvrez l'adresse de la page dans Chrome, puis menu ⋮ → « Caster, enregistrer et partager » → « Installer la page en tant qu'application ». Elle s'ouvre alors dans sa propre fenêtre, sans barre d'adresse.
 4. **Plein écran** : touche plein écran du clavier (le rectangle, au-dessus du 4), ou `F4`.
 5. **Au démarrage** : Paramètres → Système → Au démarrage → « Toujours restaurer ». La page se rouvre à l'allumage.

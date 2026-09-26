@@ -1,6 +1,6 @@
 {
-  "name": "Mon écran",
-  "short_name": "Mon écran",
+  "name": "Le bureau de Papa",
+  "short_name": "Bureau de Papa",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",
