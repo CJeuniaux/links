@@ -824,13 +824,14 @@
     // ---------- Nouvelles du jour ----------
     var nouvelles = [], indexNouvelle = 0;
     function chargerNouvelles() {
-      var cache = lire("nouvelles", null);
-      if (cache && cache.jour === jourNumero() && cache.liste.length) { nouvelles = cache.liste; majAccueil(); return; }
+      // Nouvelles gardées 3 heures, puis rafraîchies.
+      var cache = lire("nouvelles5", null);
+      if (cache && cache.liste.length && Date.now() - cache.quand < 3 * 3600 * 1000) { nouvelles = cache.liste; majAccueil(); return; }
       fetch("api/nouvelles")
         .then(function (r) { if (!r.ok) throw 0; return r.json(); })
         .then(function (j) {
           nouvelles = j.nouvelles || [];
-          if (nouvelles.length) ecrire("nouvelles", { jour: jourNumero(), liste: nouvelles });
+          if (nouvelles.length) ecrire("nouvelles5", { quand: Date.now(), liste: nouvelles });
           majAccueil();
         })
         .catch(function () { if (cache) nouvelles = cache.liste; });
@@ -1006,6 +1007,7 @@
     chargerMessages();
     chargerSavant();
     chargerNouvelles();
+    setInterval(chargerNouvelles, 60 * 60 * 1000);
     majAccueil();
     setInterval(chargerMessages, 10 * 60 * 1000); // nouveaux messages toutes les 10 minutes
     // Frein à la fermeture : Chrome demande « Quitter le site ? » avant de fermer.
