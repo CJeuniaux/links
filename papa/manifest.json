@@ -1,0 +1,10 @@
+{
+  "name": "Mon écran",
+  "short_name": "Mon écran",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "background_color": "#fbf6ec",
+  "theme_color": "#fbf6ec",
+  "icons": [{ "src": "icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
