@@ -834,19 +834,40 @@
     });
 
     // ---------- Images des tuiles d'accueil ----------
+    // Illustrations fixes des tuiles (dossier illustrations/) : la même image
+    // chaque jour aide à se repérer. Sans illustration, image du jour ou pictogramme.
+    var illustrations = {};
+    [["messages", "img-messages"], ["nouvelles", "img-nouvelles"], ["savant", "img-savant"],
+     ["discuter", "img-discuter"], ["documentaires", "img-videos"], ["films", "img-films"]].forEach(function (t) {
+      var ext = ["jpg", "png", "webp", "jpeg"], i = 0;
+      (function essayer() {
+        if (i >= ext.length) return;
+        var url = "illustrations/" + t[0] + "." + ext[i++], img = new Image();
+        img.onload = function () { illustrations[t[1]] = url; majAccueil(); };
+        img.onerror = essayer;
+        img.src = url;
+      })();
+    });
+    function image(id, url) {
+      if (illustrations[id]) url = illustrations[id];
+      if (url) fond($(id), url);
+    }
+
     function majAccueil() {
       var n = nonLus();
       var im = $("img-messages");
       im.innerHTML = "";
       im.style.backgroundImage = "";
       var dernier = messages[0];
-      if (dernier && photoDe(dernier)) fond(im, photoDe(dernier)); else im.textContent = "✉️";
+      if (!illustrations["img-messages"] && !(dernier && photoDe(dernier))) im.textContent = "✉️";
+      image("img-messages", dernier && photoDe(dernier));
       if (n > 0) { var p = document.createElement("span"); p.className = "pastille"; p.textContent = n; im.appendChild(p); }
-      if (savantImage) fond($("img-savant"), savantImage);
-      if (nouvelles[0] && nouvelles[0].image) fond($("img-nouvelles"), nouvelles[0].image);
+      image("img-savant", savantImage);
+      image("img-nouvelles", nouvelles[0] && nouvelles[0].image);
+      image("img-discuter", "");
       var d = melange(C.videos || [], jourNumero())[0], f = melange(C.films || [], jourNumero())[0];
-      if (d) fond($("img-videos"), vignette(d));
-      if (f) fond($("img-films"), vignette(f));
+      image("img-videos", d && vignette(d));
+      image("img-films", f && vignette(f));
     }
 
     construireVideos();
