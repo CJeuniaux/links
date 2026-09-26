@@ -36,6 +36,7 @@ module.exports = async (req, res) => {
       consigne: CONSIGNE + (profil ? `\n\nCe que sa famille dit de lui : ${profil}` : ""),
       echanges,
       maxMots: 1024,
+      rapide: true,
     });
     res.setHeader("Cache-Control", "no-store");
     return res.status(200).json({ reponse: reponse || "Pardon, je n'ai pas bien compris. Tu peux répéter ?" });

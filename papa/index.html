@@ -282,7 +282,7 @@
     <div class="micro-zone">
       <button class="micro" id="disc-micro" aria-label="Parler">🎤</button>
       <div>
-        <div class="etat" id="disc-etat">Appuie sur le gros bouton rond et parle.</div>
+        <div class="etat" id="disc-etat">Appuie sur le micro, puis parle.</div>
         <button class="gros-btn reecouter" id="disc-reecouter" style="display:none">🔊 Réécouter</button>
       </div>
     </div>
@@ -362,11 +362,12 @@
     // et les phrases longues s'arrêtent au bout de ~15 s. On contourne les deux.
     var numeroParole = 0;
     function dire(texte, fin, essai) {
-      if (!("speechSynthesis" in window) || !texte) { if (fin) fin(); return; }
+      if (!("speechSynthesis" in window)) { if (fin) fin("pas de synthèse vocale"); return; }
+      if (!texte) { if (fin) fin(); return; }
       var moi = ++numeroParole, fait = false, commence = false, garde = null;
-      function finir() {
+      function finir(erreur) {
         if (fait) return; fait = true; clearInterval(garde);
-        if (fin && moi === numeroParole) fin();
+        if (fin && moi === numeroParole) fin(erreur);
       }
       var occupe = speechSynthesis.speaking || speechSynthesis.pending;
       if (occupe) speechSynthesis.cancel();
@@ -376,11 +377,13 @@
         u.lang = "fr-FR"; u.rate = 0.85; u.volume = 1;
         if (voixFr) u.voice = voixFr;
         u.onstart = function () { commence = true; };
-        u.onend = finir;
+        u.onend = function () { finir(); };
         u.onerror = function (e) {
           // Interrompu par une autre parole : on ne relance rien.
           if (e.error === "interrupted" || e.error === "canceled") { fait = true; clearInterval(garde); return; }
-          finir();
+          // Autre erreur (haut-parleur occupé juste après le micro…) : on réessaie une fois.
+          if (!essai) { fait = true; clearInterval(garde); setTimeout(function () { dire(texte, fin, true); }, 900); return; }
+          finir(e.error || "erreur");
         };
         speechSynthesis.resume();
         speechSynthesis.speak(u);
@@ -390,11 +393,12 @@
         }, 10000);
         // Si rien n'a démarré après 2 secondes, on réessaie une fois.
         setTimeout(function () {
-          if (!commence && !fait && moi === numeroParole && !essai) {
+          if (commence || fait || moi !== numeroParole) return;
+          if (!essai) {
             fait = true; clearInterval(garde); speechSynthesis.cancel();
             setTimeout(function () { dire(texte, fin, true); }, 300);
-          }
-        }, 2000);
+          } else finir("la voix n'a pas démarré");
+        }, 3000);
       }, occupe ? 300 : 50);
     }
     // Lecture à l'ouverture d'un écran : seulement si activée dans contenu.js.
@@ -823,14 +827,18 @@
     var Reco = window.SpeechRecognition || window.webkitSpeechRecognition;
     var reco = null, historique = [], ecoute = false, relances = 0;
     function etat(t) { $("disc-etat").textContent = t; }
+    function montrerErreurVoix(erreur) {
+      var voix = voixFr ? voixFr.name : "aucune voix française";
+      $("disc-etat").innerHTML = "Appuie sur le micro, puis parle.<br><small style=\"font-size:.45em;font-weight:400;color:#8a7a60\">Son : " +
+        String(erreur).replace(/[<>&]/g, "") + " (" + voix.replace(/[<>&]/g, "") + ")</small>";
+    }
     function ouvrirDiscussion() {
       historique = []; relances = 0;
       $("disc-reecouter").style.display = "none";
       $("disc-lui").textContent = "";
       $("disc-ordi").textContent = "Bonjour ! De quoi as-tu envie de parler ?";
       if (!Reco) { etat("Le micro ne fonctionne pas sur cet ordinateur."); return; }
-      etat("Appuie sur le gros bouton rond et parle.");
-      dire("Bonjour ! De quoi as-tu envie de parler ? Appuie sur le gros bouton rond.");
+      etat("Appuie sur le micro, puis parle.");
     }
     function fermerDiscussion() {
       ecoute = false;
@@ -855,7 +863,7 @@
         $("disc-micro").classList.remove("ecoute");
         if (ecranActuel !== "discuter") return;
         if (texte.trim()) { relances = 0; repondre(texte.trim()); }
-        else etat("Appuie sur le gros bouton rond et parle.");
+        else etat("Appuie sur le micro, puis parle.");
       };
       ecoute = true;
       $("disc-micro").classList.add("ecoute");
@@ -866,6 +874,7 @@
     function repondre(texte) {
       historique.push({ qui: "lui", texte: texte });
       etat("Je réfléchis…");
+      $("disc-ordi").textContent = "…";
       fetch("api/discuter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -877,13 +886,17 @@
           historique.push({ qui: "ordi", texte: j.reponse });
           $("disc-ordi").textContent = j.reponse;
           $("disc-reecouter").style.display = "";
-          etat("Je te réponds…");
-          dire(j.reponse, function () {
+          etat("");
+          // Petit délai : juste après le micro, Chrome refuse parfois de parler.
+          setTimeout(function () {
             if (ecranActuel !== "discuter") return;
-            // On réécoute une fois tout seul, pour que la conversation continue sans bouton.
-            if (relances < 1 && C.ecouteAutomatique !== false) { relances++; ecouter(); }
-            else etat("Appuie sur le gros bouton rond et parle.");
-          });
+            dire(j.reponse, function (erreur) {
+              if (ecranActuel !== "discuter") return;
+              if (erreur) { etat("Appuie sur le micro, puis parle."); montrerErreurVoix(erreur); return; }
+              if (relances < 1 && C.ecouteAutomatique === true) { relances++; ecouter(); }
+              else etat("Appuie sur le micro, puis parle.");
+            });
+          }, 600);
         })
         .catch(function (j) {
           if (ecranActuel !== "discuter") return;
@@ -891,7 +904,7 @@
             ? "La discussion n'est pas encore activée."
             : "Je n'arrive pas à répondre pour le moment. Réessaie un peu plus tard.";
           $("disc-ordi").textContent = msg; dire(msg);
-          etat("Appuie sur le gros bouton rond et parle.");
+          etat("Appuie sur le micro, puis parle.");
         });
     }
     $("disc-reecouter").addEventListener("click", function () {

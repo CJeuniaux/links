@@ -22,7 +22,7 @@ async function appeler(modele, corps) {
   return parts.filter((p) => p.text && !p.thought).map((p) => p.text).join("").trim();
 }
 
-async function demanderGemini({ consigne, echanges, json = false, maxMots = 2048 }) {
+async function demanderGemini({ consigne, echanges, json = false, maxMots = 2048, rapide = false }) {
   if (!process.env.GEMINI_API_KEY) {
     const e = new Error("GEMINI_API_KEY manquante");
     e.status = 503;
@@ -35,6 +35,14 @@ async function demanderGemini({ consigne, echanges, json = false, maxMots = 2048
   };
   if (json) corps.generationConfig.responseMimeType = "application/json";
   const modele = process.env.GEMINI_MODEL || MODELE_DEFAUT;
+  if (rapide) {
+    // Réflexion minimale = réponse plus rapide. Si le modèle ne connaît pas l'option, on continue sans.
+    try {
+      return await appeler(modele, { ...corps, generationConfig: { ...corps.generationConfig, thinkingConfig: { thinkingLevel: "low" } } });
+    } catch (e) {
+      if (e.status !== 400) throw e;
+    }
+  }
   try {
     return await appeler(modele, corps);
   } catch (e) {

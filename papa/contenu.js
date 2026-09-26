@@ -27,8 +27,9 @@ window.CONTENU = {
   // ------------------------------------------------------------------
   profil: "Il était biochimiste. Il aime la science, le cinéma, les vieux films classiques et la science-fiction. Il vit en Belgique.",
 
-  // Après chaque réponse, l'ordinateur réécoute une fois tout seul.
-  ecouteAutomatique: true,
+  // true = après chaque réponse, l'ordinateur réécoute une fois tout seul.
+  // false = il faut réappuyer sur le micro (plus simple à comprendre).
+  ecouteAutomatique: false,
 
   // ------------------------------------------------------------------
   // MESSAGES DE LA FAMILLE
