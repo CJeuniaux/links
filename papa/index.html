@@ -9,33 +9,46 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <!-- Atkinson Hyperlegible : police conçue pour les personnes malvoyantes -->
-  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Lora:wght@600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --fond: #f7f1e6;
-      --fond2: #efe4d0;
-      --carte: #fffdf8;
-      --texte: #1b1b1b;
-      --doux: #4a4a4a;
-      --bleu: #1f5fa8;
-      --vert: #2e7d32;
-      --orange: #c2500a;
-      --violet: #6a1b9a;
-      --sarcelle: #0f766e;
-      --rose: #b4234a;
-      --retour: #2b2b2b;
-      --jaune: #f2b400;
+      /* Palette « ivoire et or » : chic, calme, contrastes forts pour une vue faible */
+      --fond: #f6efe0;
+      --fond2: #ebdfc6;
+      --carte: #fffaf0;
+      --texte: #2a1d12;
+      --doux: #5b4a38;
+      --or: #b8913f;
+      --or-clair: #d9bf82;
+      --brun: #3a2a1a;
+      --bronze: #7a5a1e;
+      --bordeaux: #7b1e2b;
+      /* anciens noms utilisés par les boutons */
+      --vert: var(--bronze);
+      --bleu: var(--brun);
+      --sarcelle: var(--brun);
+      --retour: var(--brun);
+      --rose: var(--bordeaux);
+      --jaune: #e0a100;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       height: 100%;
       overflow: hidden;
-      background: radial-gradient(ellipse at top left, #fffaf0 0%, var(--fond) 45%, var(--fond2) 100%);
+      background:
+        radial-gradient(ellipse at 50% -10%, #fffdf6 0%, rgba(255,253,246,0) 60%),
+        linear-gradient(180deg, var(--fond) 0%, var(--fond2) 100%);
       color: var(--texte);
       font-family: "Atkinson Hyperlegible", "Segoe UI", Roboto, Arial, sans-serif;
       user-select: none;
       -webkit-user-select: none;
     }
+    /* Cadre doré discret autour de l'écran */
+    body::before {
+      content: ""; position: fixed; inset: 10px; border: 1.5px solid var(--or-clair);
+      border-radius: 22px; pointer-events: none; z-index: 20;
+    }
+    .serif { font-family: "Lora", Georgia, "Times New Roman", serif; }
     button {
       font: inherit;
       color: inherit;
@@ -43,117 +56,131 @@
       border: none;
       background: none;
     }
-    button:focus-visible { outline: 8px solid var(--jaune); outline-offset: 6px; }
+    button:focus-visible { outline: 7px solid var(--jaune); outline-offset: 5px; }
 
-    .ecran { display: none; height: 100vh; padding: 3vh 3.5vw; flex-direction: column; gap: 2.6vh; animation: apparition .35s ease-out; }
+    .ecran { display: none; height: 100vh; padding: 3.2vh 3.5vw 3vh; flex-direction: column; gap: 2.4vh; animation: apparition .35s ease-out; }
     .ecran.actif { display: flex; }
     @keyframes apparition { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
     @media (prefers-reduced-motion: reduce) { .ecran { animation: none; } }
 
     /* ---------- Accueil ---------- */
-    .entete { display: flex; align-items: center; justify-content: space-between; gap: 3vw; }
-    .bonjour { font-size: clamp(40px, 7.5vh, 92px); font-weight: 700; line-height: 1.05; }
-    .quand { font-size: clamp(24px, 4vh, 50px); color: var(--doux); line-height: 1.3; margin-top: .6vh; }
-    .quand strong { color: var(--texte); }
-    .horloge {
-      flex-shrink: 0; background: var(--carte); border-radius: 28px; padding: 1.4vh 2.4vw;
-      box-shadow: 0 6px 24px rgba(80, 60, 20, .12); text-align: center;
+    .entete { text-align: center; }
+    .bonjour {
+      font-family: "Lora", Georgia, serif; font-size: clamp(40px, 7.4vh, 92px); font-weight: 700; line-height: 1.05;
+      color: var(--brun);
     }
-    .horloge .heure { font-size: clamp(44px, 9vh, 110px); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
-    .horloge .moment { font-size: clamp(20px, 3vh, 36px); color: var(--doux); margin-top: .4vh; }
-    .tuiles { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 2.4vh 2.2vw; min-height: 0; }
+    .ligne-date {
+      display: flex; align-items: baseline; justify-content: center; gap: 1.4vw; flex-wrap: wrap;
+      margin-top: .8vh; font-size: clamp(24px, 4.2vh, 52px); color: var(--doux);
+    }
+    .quand { color: var(--texte); font-weight: 700; }
+    .heure { font-family: "Lora", Georgia, serif; font-weight: 700; font-size: 1.35em; color: var(--brun); font-variant-numeric: tabular-nums; }
+    .sep { color: var(--or); }
+    .moment { font-style: italic; }
+    .ornement { display: flex; align-items: center; justify-content: center; gap: 1.2vw; margin-top: 1vh; color: var(--or); font-size: 2.6vh; }
+    .ornement::before, .ornement::after { content: ""; height: 1.5px; width: 18vw; background: linear-gradient(90deg, transparent, var(--or)); }
+    .ornement::after { background: linear-gradient(90deg, var(--or), transparent); }
+
+    .tuiles { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 2.4vh 2vw; min-height: 0; }
     .tuile {
-      --c: var(--bleu);
-      display: flex; flex-direction: column; border-radius: 30px; overflow: hidden; padding: 1.2vh;
-      color: #fff; text-align: left; min-height: 0; background: var(--c);
-      box-shadow: 0 10px 28px rgba(60, 40, 10, .18);
+      display: flex; flex-direction: column; border-radius: 26px; overflow: hidden; padding: 1.1vh;
+      color: var(--texte); text-align: center; min-height: 0;
+      background: linear-gradient(180deg, var(--carte) 0%, #f7eedb 100%);
+      border: 2px solid var(--or-clair);
+      box-shadow: 0 10px 26px rgba(70, 50, 20, .16), inset 0 1px 0 #fff;
       transition: transform .15s, box-shadow .15s;
     }
-    .tuile:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 0 0 8px var(--jaune), 0 16px 32px rgba(60,40,10,.25); }
+    .tuile:hover { transform: translateY(-4px); box-shadow: 0 0 0 6px var(--jaune), 0 16px 30px rgba(70,50,20,.22); }
     .tuile .image {
-      flex: 1; min-height: 0; border-radius: 22px; position: relative;
-      background: rgba(255,255,255,.18) center/cover no-repeat;
-      display: flex; align-items: center; justify-content: center; font-size: 11vh;
+      flex: 1; min-height: 0; border-radius: 18px; position: relative;
+      background: #efe3c8 center/cover no-repeat;
+      display: flex; align-items: center; justify-content: center; font-size: 10vh;
     }
-    .tuile .libelle { padding: 1.4vh .8vw .4vh; font-size: clamp(24px, 4vh, 50px); font-weight: 700; line-height: 1.1; }
-    .tuile .sous { display: block; font-size: .62em; font-weight: 400; opacity: .92; margin-top: .15em; }
-    .t-messages { --c: var(--bleu); }
-    .t-nouvelles { --c: var(--sarcelle); }
-    .t-savant { --c: var(--vert); }
-    .t-discuter { --c: var(--rose); }
-    .t-videos { --c: var(--orange); }
-    .t-films { --c: var(--violet); }
+    .tuile .libelle {
+      padding: 1.2vh .6vw .3vh; font-family: "Lora", Georgia, serif;
+      font-size: clamp(26px, 4.3vh, 54px); font-weight: 700; line-height: 1.05; color: var(--brun);
+    }
+    .tuile .sous { display: block; font-family: "Atkinson Hyperlegible", sans-serif; font-size: .52em; font-weight: 400; color: var(--doux); margin-top: .2em; }
     .maj {
-      position: fixed; right: 10px; bottom: 6px; font-size: 13px; color: #8a7f6c; opacity: .45;
-      padding: 4px 8px; border-radius: 8px;
+      position: fixed; right: 22px; bottom: 16px; font-size: 13px; color: #8a7a60; opacity: .5;
+      padding: 4px 8px; border-radius: 8px; z-index: 21;
     }
     .maj:hover { opacity: 1; background: #fff; }
     .pastille {
-      position: absolute; top: 1.4vh; right: 1.4vh; background: #d10000; color: #fff;
+      position: absolute; top: 1.2vh; right: 1.2vh; background: var(--bordeaux); color: #fff;
       font-size: clamp(24px, 4vh, 48px); font-weight: 700; border-radius: 999px;
-      min-width: 1.6em; padding: .05em .4em; border: 4px solid #fff; text-align: center;
+      min-width: 1.6em; padding: .05em .4em; border: 3px solid var(--or-clair); text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,.25);
     }
 
     /* ---------- Barre du haut des autres écrans ---------- */
-    .haut { display: flex; align-items: center; gap: 3vw; }
+    .haut { display: flex; align-items: center; gap: 3vw; padding-bottom: 1.6vh; border-bottom: 1.5px solid var(--or-clair); }
     .btn-retour {
-      box-shadow: 0 6px 18px rgba(0,0,0,.18);
-      background: var(--retour); color: #fff; border-radius: 22px;
-      font-size: clamp(28px, 4.6vh, 56px); font-weight: 700; padding: 1.6vh 3vw;
+      background: var(--brun); color: #fff8e8; border-radius: 999px; border: 2px solid var(--or);
+      font-size: clamp(26px, 4.4vh, 54px); font-weight: 700; padding: 1.3vh 2.8vw;
       display: flex; align-items: center; gap: .4em; flex-shrink: 0;
+      box-shadow: 0 6px 16px rgba(40,25,10,.25);
     }
-    .btn-retour:hover { box-shadow: 0 0 0 8px #f2b400; }
-    .titre { font-size: clamp(32px, 5.5vh, 68px); font-weight: 700; line-height: 1.1; }
+    .btn-retour:hover { box-shadow: 0 0 0 6px var(--jaune); }
+    .titre { font-family: "Lora", Georgia, serif; font-size: clamp(32px, 5.6vh, 70px); font-weight: 700; line-height: 1.1; color: var(--brun); }
 
     .gros-btn {
-      border-radius: 22px; color: #fff; font-size: clamp(26px, 4.2vh, 50px); font-weight: 700;
-      padding: 2vh 3vw; display: inline-flex; align-items: center; gap: .4em;
-      box-shadow: 0 8px 20px rgba(0,0,0,.18);
+      border-radius: 999px; color: #fff8e8; font-size: clamp(26px, 4.2vh, 50px); font-weight: 700;
+      padding: 1.8vh 3vw; display: inline-flex; align-items: center; gap: .4em;
+      border: 2px solid var(--or); box-shadow: 0 8px 18px rgba(40,25,10,.22);
     }
-    .gros-btn:hover { box-shadow: 0 0 0 8px #f2b400; }
-    .actions { display: flex; gap: 3vw; flex-wrap: wrap; }
+    .gros-btn:hover { box-shadow: 0 0 0 6px var(--jaune); }
+    .actions { display: flex; gap: 2.4vw; flex-wrap: wrap; justify-content: center; }
 
-    /* ---------- Contenu (messages / savant) ---------- */
-    .contenu { flex: 1; display: flex; gap: 4vw; min-height: 0; align-items: center; }
-    .contenu > .texte { background: var(--carte); border-radius: 30px; padding: 4vh 3vw; box-shadow: 0 8px 26px rgba(80,60,20,.12); }
-    .portrait {
-      box-shadow: 0 10px 28px rgba(60,40,10,.2);
-      width: 38vh; height: 38vh; max-width: 36vw; flex-shrink: 0; border-radius: 28px;
-      background: #ccc center/cover no-repeat; display: flex; align-items: center; justify-content: center;
-      font-size: 18vh; font-weight: 700; color: #fff;
+    /* ---------- Contenu (messages / savant / nouvelles) ---------- */
+    .contenu { flex: 1; display: flex; gap: 3.5vw; min-height: 0; align-items: center; }
+    .contenu > .texte {
+      background: var(--carte); border-radius: 26px; padding: 4vh 3vw;
+      border: 2px solid var(--or-clair); box-shadow: 0 10px 26px rgba(70,50,20,.14);
     }
-    .portrait.grand { width: 60vh; height: 62vh; background-size: contain; background-color: #fff; border: 4px solid #ddd; }
+    .portrait {
+      width: 38vh; height: 38vh; max-width: 36vw; flex-shrink: 0; border-radius: 26px;
+      background: #d8c7a3 center/cover no-repeat; display: flex; align-items: center; justify-content: center;
+      font-size: 18vh; font-weight: 700; color: #fff; font-family: "Lora", Georgia, serif;
+      border: 3px solid var(--or-clair); box-shadow: 0 10px 26px rgba(70,50,20,.2);
+    }
+    .portrait.grand { width: 60vh; height: 60vh; background-size: contain; background-color: var(--carte); }
     .texte { flex: 1; min-width: 0; }
-    .texte .qui { font-size: clamp(34px, 6vh, 72px); font-weight: 700; margin-bottom: 2vh; }
-    .texte .corps { font-size: clamp(34px, 6.2vh, 76px); line-height: 1.3; }
-    .texte .petit { font-size: clamp(22px, 3.2vh, 38px); color: var(--doux); margin-top: 2vh; }
+    .texte .qui { font-family: "Lora", Georgia, serif; font-size: clamp(34px, 6vh, 72px); font-weight: 700; margin-bottom: 2vh; color: var(--brun); line-height: 1.15; }
+    .texte .corps { font-size: clamp(34px, 6vh, 74px); line-height: 1.32; }
+    .texte .petit { font-size: clamp(22px, 3.2vh, 38px); color: var(--doux); margin-top: 2vh; font-style: italic; }
 
     /* ---------- Vidéos ---------- */
-    .choix-videos { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3vw; min-height: 0; }
-    .choix-videos .tuile { --c: var(--orange); }
-    .choix-videos.films .tuile { --c: var(--violet); }
-    .choix-videos .libelle { font-size: clamp(24px, 3.6vh, 44px); }
-    .lecteur { flex: 1; border-radius: 20px; overflow: hidden; background: #000; }
+    .choix-videos { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.4vw; min-height: 0; }
+    .choix-videos .libelle { font-size: clamp(22px, 3.4vh, 42px); }
+    .lecteur { flex: 1; border-radius: 20px; overflow: hidden; background: #000; border: 2px solid var(--or-clair); }
     .pause {
-      display: none; position: fixed; inset: 0; background: var(--fond); z-index: 10;
+      display: none; position: fixed; inset: 0; background: linear-gradient(180deg, var(--fond), var(--fond2)); z-index: 10;
       flex-direction: column; align-items: center; justify-content: center; gap: 6vh; text-align: center;
     }
     .pause.visible { display: flex; }
+    .pause .quand { font-size: clamp(24px, 4vh, 48px); font-weight: 400; color: var(--doux); font-style: italic; }
+
     /* ---------- Discuter ---------- */
     .conversation { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 3vh; min-height: 0; }
-    .bulle { border-radius: 30px; padding: 3vh 3vw; font-size: clamp(30px, 5.4vh, 66px); line-height: 1.3; box-shadow: 0 8px 26px rgba(80,60,20,.12); }
+    .bulle {
+      border-radius: 26px; padding: 3vh 3vw; font-size: clamp(30px, 5.4vh, 66px); line-height: 1.3;
+      box-shadow: 0 8px 22px rgba(70,50,20,.12); border: 2px solid var(--or-clair);
+    }
     .bulle:empty { display: none; }
-    .bulle.lui { background: #e7eef8; color: #243b5a; align-self: flex-start; max-width: 85%; }
+    .bulle.lui { background: #efe5d0; color: var(--doux); align-self: flex-start; max-width: 85%; font-style: italic; }
     .bulle.ordi { background: var(--carte); align-self: flex-end; max-width: 92%; }
     .micro-zone { display: flex; align-items: center; justify-content: center; gap: 3vw; }
     .micro {
-      width: 22vh; height: 22vh; border-radius: 50%; background: var(--rose); color: #fff; font-size: 11vh;
-      box-shadow: 0 12px 30px rgba(180,35,74,.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      width: 21vh; height: 21vh; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #9a2a3a, var(--bordeaux));
+      color: #fff; font-size: 10vh; border: 4px solid var(--or);
+      box-shadow: 0 12px 30px rgba(123,30,43,.35); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .micro:hover { box-shadow: 0 0 0 10px var(--jaune), 0 12px 30px rgba(180,35,74,.4); }
-    .micro.ecoute { animation: pulse 1.2s ease-in-out infinite; background: #d62d5a; }
-    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(214,45,90,.6); } 50% { box-shadow: 0 0 0 4vh rgba(214,45,90,0); } }
-    .etat { font-size: clamp(28px, 5vh, 60px); font-weight: 700; }
+    .micro:hover { box-shadow: 0 0 0 8px var(--jaune), 0 12px 30px rgba(123,30,43,.35); }
+    .micro.ecoute { animation: pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(184,145,63,.7); } 50% { box-shadow: 0 0 0 4vh rgba(184,145,63,0); } }
+    .etat { font-family: "Lora", Georgia, serif; font-size: clamp(28px, 4.8vh, 58px); font-weight: 700; color: var(--brun); }
+    .reecouter { font-size: clamp(22px, 3.4vh, 40px); padding: 1.2vh 2vw; background: var(--bronze); }
 
     .lecteur iframe, .lecteur > div { width: 100%; height: 100%; border: 0; }
   </style>
@@ -163,11 +190,15 @@
   <!-- ================= ACCUEIL ================= -->
   <section class="ecran actif" id="accueil">
     <div class="entete">
-      <div>
-        <div class="bonjour" id="bonjour">Bonjour</div>
-        <div class="quand" id="quand"></div>
+      <div class="bonjour" id="bonjour">Bonjour</div>
+      <div class="ligne-date">
+        <span class="quand" id="quand"></span>
+        <span class="sep">·</span>
+        <span class="heure" id="heure"></span>
+        <span class="sep">·</span>
+        <span class="moment" id="moment"></span>
       </div>
-      <div class="horloge"><div class="heure" id="heure"></div><div class="moment" id="moment"></div></div>
+      <div class="ornement">❦</div>
     </div>
     <button class="maj" id="maj" title="Mettre à jour l'application">↻ mise à jour</button>
     <div class="tuiles">
@@ -250,7 +281,10 @@
     </div>
     <div class="micro-zone">
       <button class="micro" id="disc-micro" aria-label="Parler">🎤</button>
-      <div class="etat" id="disc-etat">Appuie sur le bouton rouge et parle.</div>
+      <div>
+        <div class="etat" id="disc-etat">Appuie sur le gros bouton rond et parle.</div>
+        <button class="gros-btn reecouter" id="disc-reecouter" style="display:none">🔊 Réécouter</button>
+      </div>
     </div>
   </section>
 
@@ -324,18 +358,48 @@
                v.filter(function (x) { return /google/i.test(x.name); })[0] || v[0] || null;
     }
     if ("speechSynthesis" in window) { chercherVoix(); speechSynthesis.onvoiceschanged = chercherVoix; }
-    function dire(texte, fin) {
+    // Chrome a plusieurs défauts : parler juste après cancel() échoue parfois,
+    // et les phrases longues s'arrêtent au bout de ~15 s. On contourne les deux.
+    var numeroParole = 0;
+    function dire(texte, fin, essai) {
       if (!("speechSynthesis" in window) || !texte) { if (fin) fin(); return; }
-      speechSynthesis.cancel();
-      var u = new SpeechSynthesisUtterance(texte);
-      u.lang = "fr-FR"; u.rate = 0.85;
-      if (voixFr) u.voice = voixFr;
-      if (fin) { var fait = false; u.onend = u.onerror = function () { if (!fait) { fait = true; fin(); } }; }
-      speechSynthesis.speak(u);
+      var moi = ++numeroParole, fait = false, commence = false, garde = null;
+      function finir() {
+        if (fait) return; fait = true; clearInterval(garde);
+        if (fin && moi === numeroParole) fin();
+      }
+      var occupe = speechSynthesis.speaking || speechSynthesis.pending;
+      if (occupe) speechSynthesis.cancel();
+      setTimeout(function () {
+        if (moi !== numeroParole) return;
+        var u = new SpeechSynthesisUtterance(texte);
+        u.lang = "fr-FR"; u.rate = 0.85; u.volume = 1;
+        if (voixFr) u.voice = voixFr;
+        u.onstart = function () { commence = true; };
+        u.onend = finir;
+        u.onerror = function (e) {
+          // Interrompu par une autre parole : on ne relance rien.
+          if (e.error === "interrupted" || e.error === "canceled") { fait = true; clearInterval(garde); return; }
+          finir();
+        };
+        speechSynthesis.resume();
+        speechSynthesis.speak(u);
+        garde = setInterval(function () {
+          if (!speechSynthesis.speaking) return;
+          speechSynthesis.pause(); speechSynthesis.resume();
+        }, 10000);
+        // Si rien n'a démarré après 2 secondes, on réessaie une fois.
+        setTimeout(function () {
+          if (!commence && !fait && moi === numeroParole && !essai) {
+            fait = true; clearInterval(garde); speechSynthesis.cancel();
+            setTimeout(function () { dire(texte, fin, true); }, 300);
+          }
+        }, 2000);
+      }, occupe ? 300 : 50);
     }
     // Lecture à l'ouverture d'un écran : seulement si activée dans contenu.js.
     function direAuto(texte) { if (C.lectureAutomatique === true) dire(texte); }
-    function taire() { if ("speechSynthesis" in window) speechSynthesis.cancel(); }
+    function taire() { numeroParole++; if ("speechSynthesis" in window) speechSynthesis.cancel(); }
 
     // ---------- Navigation ----------
     function aller(nom) {
@@ -422,13 +486,13 @@
       $("bonjour").textContent = salut + (C.prenom || "") + " !";
       var date = d.toLocaleDateString("fr-BE", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
       date = date.charAt(0).toUpperCase() + date.slice(1);
-      $("quand").innerHTML = "Nous sommes <strong>" + date + "</strong>.";
+      $("quand").textContent = date;
       $("heure").textContent = h + ":" + String(d.getMinutes()).padStart(2, "0");
       $("moment").textContent = moment(h);
     }
     function phraseDuMoment() {
       var d = new Date();
-      return $("bonjour").textContent + " " + $("quand").textContent + " Il est " + d.getHours() + " heures " +
+      return $("bonjour").textContent + " Nous sommes " + $("quand").textContent + ". Il est " + d.getHours() + " heures " +
         (d.getMinutes() ? d.getMinutes() : "") + ". " + moment(d.getHours()) + ".";
     }
     majHorloge();
@@ -761,11 +825,12 @@
     function etat(t) { $("disc-etat").textContent = t; }
     function ouvrirDiscussion() {
       historique = []; relances = 0;
+      $("disc-reecouter").style.display = "none";
       $("disc-lui").textContent = "";
       $("disc-ordi").textContent = "Bonjour ! De quoi as-tu envie de parler ?";
       if (!Reco) { etat("Le micro ne fonctionne pas sur cet ordinateur."); return; }
-      etat("Appuie sur le bouton rouge et parle.");
-      dire("Bonjour ! De quoi as-tu envie de parler ? Appuie sur le bouton rouge.");
+      etat("Appuie sur le gros bouton rond et parle.");
+      dire("Bonjour ! De quoi as-tu envie de parler ? Appuie sur le gros bouton rond.");
     }
     function fermerDiscussion() {
       ecoute = false;
@@ -790,7 +855,7 @@
         $("disc-micro").classList.remove("ecoute");
         if (ecranActuel !== "discuter") return;
         if (texte.trim()) { relances = 0; repondre(texte.trim()); }
-        else etat("Appuie sur le bouton rouge et parle.");
+        else etat("Appuie sur le gros bouton rond et parle.");
       };
       ecoute = true;
       $("disc-micro").classList.add("ecoute");
@@ -811,12 +876,13 @@
           if (ecranActuel !== "discuter") return;
           historique.push({ qui: "ordi", texte: j.reponse });
           $("disc-ordi").textContent = j.reponse;
-          etat("");
+          $("disc-reecouter").style.display = "";
+          etat("Je te réponds…");
           dire(j.reponse, function () {
             if (ecranActuel !== "discuter") return;
             // On réécoute une fois tout seul, pour que la conversation continue sans bouton.
             if (relances < 1 && C.ecouteAutomatique !== false) { relances++; ecouter(); }
-            else etat("Appuie sur le bouton rouge et parle.");
+            else etat("Appuie sur le gros bouton rond et parle.");
           });
         })
         .catch(function (j) {
@@ -825,9 +891,13 @@
             ? "La discussion n'est pas encore activée."
             : "Je n'arrive pas à répondre pour le moment. Réessaie un peu plus tard.";
           $("disc-ordi").textContent = msg; dire(msg);
-          etat("Appuie sur le bouton rouge et parle.");
+          etat("Appuie sur le gros bouton rond et parle.");
         });
     }
+    $("disc-reecouter").addEventListener("click", function () {
+      if (ecoute && reco) { try { reco.abort(); } catch (e) {} }
+      dire($("disc-ordi").textContent);
+    });
     $("disc-micro").addEventListener("click", function () {
       relances = 0;
       if (ecoute && reco) reco.stop(); else ecouter();
