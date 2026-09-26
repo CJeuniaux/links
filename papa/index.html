@@ -83,6 +83,11 @@
     .t-discuter { --c: var(--rose); }
     .t-videos { --c: var(--orange); }
     .t-films { --c: var(--violet); }
+    .maj {
+      position: fixed; right: 10px; bottom: 6px; font-size: 13px; color: #8a7f6c; opacity: .45;
+      padding: 4px 8px; border-radius: 8px;
+    }
+    .maj:hover { opacity: 1; background: #fff; }
     .pastille {
       position: absolute; top: 1.4vh; right: 1.4vh; background: #d10000; color: #fff;
       font-size: clamp(24px, 4vh, 48px); font-weight: 700; border-radius: 999px;
@@ -164,6 +169,7 @@
       </div>
       <div class="horloge"><div class="heure" id="heure"></div><div class="moment" id="moment"></div></div>
     </div>
+    <button class="maj" id="maj" title="Mettre à jour l'application">↻ mise à jour</button>
     <div class="tuiles">
       <button class="tuile t-messages" data-aller="messages" id="tuile-messages">
         <div class="image" id="img-messages">✉️</div>
@@ -345,9 +351,24 @@
       if (nom === "nouvelles") ouvrirNouvelles();
       if (nom === "discuter") ouvrirDiscussion();
       if (nom === "accueil") majAccueil();
-      var premier = document.querySelector("#" + nom + " button");
-      if (premier) premier.focus({ preventScroll: true });
+      if (nom === "accueil") {
+        // Aucune tuile présélectionnée : une touche pressée pour réveiller l'ordi n'ouvre rien.
+        if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      } else {
+        var premier = document.querySelector("#" + nom + " button");
+        if (premier) premier.focus({ preventScroll: true });
+      }
     }
+
+    // Moment de calme au démarrage et au réveil : clics et touches ignorés 2 secondes.
+    var calmeJusqua = Date.now() + 2000;
+    function calme() { calmeJusqua = Date.now() + 2000; }
+    ["click", "keydown", "keyup", "mousedown"].forEach(function (t) {
+      document.addEventListener(t, function (e) {
+        if (Date.now() < calmeJusqua) { e.preventDefault(); e.stopImmediatePropagation(); }
+      }, true);
+    });
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) calme(); });
     document.addEventListener("click", function (e) {
       var b = e.target.closest("[data-aller]");
       if (b) aller(b.getAttribute("data-aller"));
@@ -843,6 +864,25 @@
       });
     }
 
+    // Mise à jour : bouton discret, et rechargement automatique quand une
+    // nouvelle version est publiée (vérifiée toutes les 15 minutes, uniquement
+    // quand l'accueil est affiché et que personne n'utilise l'ordinateur).
+    $("maj").addEventListener("click", function () { recharger(); });
+    var versionChargee = null, derniereActivite = Date.now();
+    ["mousemove", "mousedown", "keydown"].forEach(function (t) { document.addEventListener(t, function () { derniereActivite = Date.now(); }); });
+    function verifierVersion() {
+      fetch("api/version", { cache: "no-store" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) {
+          if (!j || !j.version) return;
+          if (!versionChargee) { versionChargee = j.version; return; }
+          if (j.version !== versionChargee && ecranActuel === "accueil" && Date.now() - derniereActivite > 60 * 1000) recharger();
+        })
+        .catch(function () {});
+    }
+    verifierVersion();
+    setInterval(verifierVersion, 15 * 60 * 1000);
+
     // Au changement de jour, on recharge tout (nouveau savant, nouvelles vidéos)
     var jour = jourNumero();
     setInterval(function () { if (jourNumero() !== jour && ecranActuel === "accueil") recharger(); }, 60 * 1000);
@@ -850,6 +890,7 @@
     // Réveil : quand on rouvre le capot, on repart toujours de l'accueil
     var dernierTic = Date.now();
     function auReveil() {
+      calme();
       if (jourNumero() !== jour) { recharger(); return; }
       aller("accueil");
       chargerMessages();
