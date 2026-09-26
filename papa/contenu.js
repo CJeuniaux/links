@@ -9,6 +9,10 @@ window.CONTENU = {
   // Quand on rouvre l'ordinateur, une voix dit bonjour, la date et l'heure.
   direBonjourAuReveil: true,
 
+  // Avant de fermer la fenêtre, Chrome demande « Quitter le site ? ».
+  // Mettre false pour enlever cette question.
+  bloquerFermeture: true,
+
   // ------------------------------------------------------------------
   // MESSAGES DE LA FAMILLE
   // Lien CSV d'une Google Sheet « publiée sur le web » (voir README.md).

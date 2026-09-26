@@ -564,14 +564,25 @@
     chargerSavant();
     majAccueil();
     setInterval(chargerMessages, 10 * 60 * 1000); // nouveaux messages toutes les 10 minutes
+    // Frein à la fermeture : Chrome demande « Quitter le site ? » avant de fermer.
+    var rechargementVoulu = false;
+    function recharger() { rechargementVoulu = true; location.reload(); }
+    if (C.bloquerFermeture !== false) {
+      window.addEventListener("beforeunload", function (e) {
+        if (rechargementVoulu) return;
+        e.preventDefault();
+        e.returnValue = "";
+      });
+    }
+
     // Au changement de jour, on recharge tout (nouveau savant, nouvelles vidéos)
     var jour = jourNumero();
-    setInterval(function () { if (jourNumero() !== jour && ecranActuel === "accueil") location.reload(); }, 60 * 1000);
+    setInterval(function () { if (jourNumero() !== jour && ecranActuel === "accueil") recharger(); }, 60 * 1000);
 
     // Réveil : quand on rouvre le capot, on repart toujours de l'accueil
     var dernierTic = Date.now();
     function auReveil() {
-      if (jourNumero() !== jour) { location.reload(); return; }
+      if (jourNumero() !== jour) { recharger(); return; }
       aller("accueil");
       chargerMessages();
       majHorloge();
