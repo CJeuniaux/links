@@ -136,20 +136,33 @@
 
     /* ---------- Contenu (messages / savant / nouvelles) ---------- */
     .contenu { flex: 1; display: flex; gap: 3.5vw; min-height: 0; align-items: center; }
-    .contenu > .texte {
-      background: var(--carte); border-radius: 26px; padding: 4vh 3vw;
+    .carte-texte {
+      flex: 1; min-width: 0; max-height: 100%; display: flex; gap: 1.2vw;
+      background: var(--carte); border-radius: 26px; padding: 3.5vh 1.6vw 3.5vh 3vw;
       border: 2px solid var(--or-clair); box-shadow: 0 10px 26px rgba(70,50,20,.14);
     }
+    /* Le texte reste dans sa carte ; s'il est long, on le fait défiler. */
+    .texte.defilable { overflow-y: auto; min-height: 0; padding-right: 1vw; scrollbar-width: auto; scrollbar-color: var(--or) #efe5d0; }
+    .texte.defilable::-webkit-scrollbar { width: 16px; }
+    .texte.defilable::-webkit-scrollbar-track { background: #efe5d0; border-radius: 8px; }
+    .texte.defilable::-webkit-scrollbar-thumb { background: var(--or); border-radius: 8px; }
+    .defil { display: none; flex-direction: column; justify-content: space-between; flex-shrink: 0; }
+    .carte-texte.long .defil { display: flex; }
+    .defil-btn {
+      width: 9vh; height: 9vh; border-radius: 50%; background: var(--brun); color: #fff8e8;
+      font-size: 4.5vh; border: 2px solid var(--or); box-shadow: 0 6px 14px rgba(40,25,10,.25);
+    }
+    .defil-btn:hover { box-shadow: 0 0 0 6px var(--jaune); }
     .portrait {
       width: 38vh; height: 38vh; max-width: 36vw; flex-shrink: 0; border-radius: 26px;
       background: #d8c7a3 center/cover no-repeat; display: flex; align-items: center; justify-content: center;
       font-size: 18vh; font-weight: 700; color: #fff; font-family: "Lora", Georgia, serif;
       border: 3px solid var(--or-clair); box-shadow: 0 10px 26px rgba(70,50,20,.2);
     }
-    .portrait.grand { width: 60vh; height: 60vh; background-size: contain; background-color: var(--carte); }
+    .portrait.grand { width: 46vh; height: 52vh; max-width: 32vw; background-size: contain; background-color: var(--carte); }
     .texte { flex: 1; min-width: 0; }
     .texte .qui { font-family: "Lora", Georgia, serif; font-size: clamp(34px, 6vh, 72px); font-weight: 700; margin-bottom: 2vh; color: var(--brun); line-height: 1.15; }
-    .texte .corps { font-size: clamp(34px, 6vh, 74px); line-height: 1.32; }
+    .texte .corps { font-size: clamp(30px, 5vh, 62px); line-height: 1.35; white-space: pre-line; }
     .texte .petit { font-size: clamp(22px, 3.2vh, 38px); color: var(--doux); margin-top: 2vh; font-style: italic; }
 
     /* ---------- Vidéos ---------- */
@@ -246,10 +259,16 @@
     </div>
     <div class="contenu">
       <div class="portrait" id="msg-portrait"></div>
-      <div class="texte">
-        <div class="qui" id="msg-qui"></div>
-        <div class="corps" id="msg-corps"></div>
-        <div class="petit" id="msg-date"></div>
+      <div class="carte-texte">
+        <div class="texte defilable">
+          <div class="qui" id="msg-qui"></div>
+          <div class="corps" id="msg-corps"></div>
+          <div class="petit" id="msg-date"></div>
+        </div>
+        <div class="defil">
+          <button class="defil-btn" data-sens="-1" aria-label="Remonter">▲</button>
+          <button class="defil-btn" data-sens="1" aria-label="Descendre">▼</button>
+        </div>
       </div>
     </div>
     <div class="actions">
@@ -266,10 +285,16 @@
     </div>
     <div class="contenu">
       <div class="portrait grand" id="nv-image">📰</div>
-      <div class="texte">
-        <div class="qui" id="nv-titre"></div>
-        <div class="corps" id="nv-texte"></div>
-        <div class="petit" id="nv-source"></div>
+      <div class="carte-texte">
+        <div class="texte defilable">
+          <div class="qui" id="nv-titre"></div>
+          <div class="corps" id="nv-texte"></div>
+          <div class="petit" id="nv-source"></div>
+        </div>
+        <div class="defil">
+          <button class="defil-btn" data-sens="-1" aria-label="Remonter">▲</button>
+          <button class="defil-btn" data-sens="1" aria-label="Descendre">▼</button>
+        </div>
       </div>
     </div>
     <div class="actions">
@@ -305,9 +330,15 @@
     </div>
     <div class="contenu">
       <div class="portrait grand" id="sav-portrait"></div>
-      <div class="texte">
-        <div class="qui" id="sav-nom"></div>
-        <div class="corps" id="sav-texte"></div>
+      <div class="carte-texte">
+        <div class="texte defilable">
+          <div class="qui" id="sav-nom"></div>
+          <div class="corps" id="sav-texte"></div>
+        </div>
+        <div class="defil">
+          <button class="defil-btn" data-sens="-1" aria-label="Remonter">▲</button>
+          <button class="defil-btn" data-sens="1" aria-label="Descendre">▼</button>
+        </div>
       </div>
     </div>
     <div class="actions">
@@ -489,6 +520,25 @@
     ["mousemove", "mousedown", "keydown"].forEach(function (t) { document.addEventListener(t, activite); });
     activite();
 
+    // ---------- Cartes de texte défilables ----------
+    function majDefil() {
+      document.querySelectorAll(".carte-texte").forEach(function (c) {
+        var t = c.querySelector(".defilable");
+        c.classList.toggle("long", t.scrollHeight > t.clientHeight + 2);
+      });
+    }
+    document.querySelectorAll(".carte-texte").forEach(function (c) {
+      var t = c.querySelector(".defilable");
+      new MutationObserver(function () { t.scrollTop = 0; setTimeout(majDefil, 50); })
+        .observe(t, { childList: true, characterData: true, subtree: true });
+      c.querySelectorAll(".defil-btn").forEach(function (b) {
+        b.addEventListener("click", function () {
+          t.scrollBy({ top: +b.getAttribute("data-sens") * t.clientHeight * 0.7, behavior: "smooth" });
+        });
+      });
+    });
+    window.addEventListener("resize", majDefil);
+
     // ---------- Accueil : date, heure, moment de la journée ----------
     function moment(h) {
       if (h < 6) return "C'est la nuit";
@@ -613,24 +663,36 @@
     var savantTexte = savant ? savant.resume : "";
     var savantImage = "";
 
-    function troisPhrases(t) {
-      var p = t.replace(/\s*\([^)]*\)/g, "").match(/[^.!?]+[.!?]+/g) || [t];
-      return p.slice(0, 3).join(" ").trim();
+    // Début de l'article, sans les titres de sections, coupé proprement à la fin d'une phrase.
+    function nettoyerBio(t) {
+      t = t.replace(/\s*\([^)]*\)/g, "")
+           .split("\n").filter(function (l) { return l.trim() && !/^=+.*=+$/.test(l.trim()); }).join("\n\n");
+      if (t.length > 2200) {
+        var coupe = t.slice(0, 2200), fin = Math.max(coupe.lastIndexOf(". "), coupe.lastIndexOf(".\n"));
+        t = fin > 600 ? coupe.slice(0, fin + 1) : coupe + "…";
+      }
+      return t.trim();
     }
 
     function chargerSavant() {
       if (!savant) return;
-      var cache = lire("savant", null);
+      var cache = lire("savant2", null);
       if (cache && cache.page === savant.page) { savantTexte = cache.texte; savantImage = cache.image; majAccueil(); return; }
-      fetch("https://fr.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(savant.page.replace(/ /g, "_")))
+      var titre = encodeURIComponent(savant.page.replace(/ /g, "_"));
+      var resume = fetch("https://fr.wikipedia.org/api/rest_v1/page/summary/" + titre)
+        .then(function (r) { if (!r.ok) throw 0; return r.json(); });
+      var article = fetch("https://fr.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=1&exchars=4000&redirects=1&format=json&origin=*&titles=" + titre)
         .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-        .then(function (j) {
-          if (j.extract) savantTexte = troisPhrases(j.extract);
-          savantImage = (j.originalimage && j.originalimage.source) || (j.thumbnail && j.thumbnail.source) || "";
-          ecrire("savant", { page: savant.page, texte: savantTexte, image: savantImage });
-          majAccueil();
-        })
-        .catch(function () {});
+        .then(function (j) { var pages = j.query && j.query.pages; for (var k in pages) return pages[k].extract || ""; return ""; })
+        .catch(function () { return ""; });
+      Promise.all([resume.catch(function () { return {}; }), article]).then(function (r) {
+        var j = r[0] || {}, texte = r[1];
+        if (texte) savantTexte = nettoyerBio(texte);
+        else if (j.extract) savantTexte = nettoyerBio(j.extract);
+        savantImage = (j.originalimage && j.originalimage.source) || (j.thumbnail && j.thumbnail.source) || "";
+        if (texte || j.extract) ecrire("savant2", { page: savant.page, texte: savantTexte, image: savantImage });
+        majAccueil();
+      });
     }
 
     function ouvrirSavant() {
@@ -834,13 +896,13 @@
     var nouvelles = [], indexNouvelle = 0;
     function chargerNouvelles() {
       // Nouvelles gardées 3 heures, puis rafraîchies.
-      var cache = lire("nouvelles5", null);
+      var cache = lire("nouvelles6", null);
       if (cache && cache.liste.length && Date.now() - cache.quand < 3 * 3600 * 1000) { nouvelles = cache.liste; majAccueil(); return; }
       fetch("api/nouvelles")
         .then(function (r) { if (!r.ok) throw 0; return r.json(); })
         .then(function (j) {
           nouvelles = j.nouvelles || [];
-          if (nouvelles.length) ecrire("nouvelles5", { quand: Date.now(), liste: nouvelles });
+          if (nouvelles.length) ecrire("nouvelles6", { quand: Date.now(), liste: nouvelles });
           majAccueil();
         })
         .catch(function () { if (cache) nouvelles = cache.liste; });

@@ -19,7 +19,7 @@ Parmi les articles fournis, choisis-en exactement 5, sans doublon :
 - 1 nouvelle de science (de préférence biologie, chimie, médecine ou espace) ;
 - 1 nouvelle de culture ou de cinéma.
 Pour les grandes actualités, choisis les plus importantes du jour, même si elles sont sérieuses. Donne les faits de façon neutre et claire, sans détails choquants ni ton alarmiste.
-Pour chacune, écris un titre de 8 mots maximum et un texte de 2 ou 3 phrases courtes (50 mots maximum en tout), en français simple, au présent, sans jargon.
+Pour chacune, écris un titre de 8 mots maximum et un texte de 4 à 6 phrases courtes (environ 90 à 120 mots) : les faits, puis le contexte utile pour bien comprendre (qui, où, pourquoi c'est important). En français simple, au présent, sans jargon.
 Réponds uniquement en JSON : {"nouvelles":[{"id":"...","titre":"...","texte":"..."}]}`;
 
 function decoder(s) {
@@ -52,7 +52,7 @@ async function lireFlux(f) {
     return (xml.match(/<item[\s>][\s\S]*?<\/item>/gi) || []).slice(0, 8).map((b) => ({
       source: f.nom,
       titre: decoder(balise(b, "title")),
-      resume: decoder(balise(b, "description")).slice(0, 220),
+      resume: decoder(balise(b, "description")).slice(0, 400),
       image: image(b),
     })).filter((a) => a.titre);
   } catch (e) {
@@ -83,7 +83,7 @@ module.exports = async (req, res) => {
       // Sans Gemini : le premier article de chaque source, tel quel.
       const vus = {};
       nouvelles = articles.filter((a) => !vus[a.source] && (vus[a.source] = 1)).slice(0, 5)
-        .map((a) => ({ titre: a.titre, texte: a.resume.split(/(?<=[.!?])\s/).slice(0, 2).join(" "), image: a.image, source: a.source }));
+        .map((a) => ({ titre: a.titre, texte: a.resume, image: a.image, source: a.source }));
     }
   }
   res.setHeader("Cache-Control", "public, s-maxage=10800, stale-while-revalidate=86400");
