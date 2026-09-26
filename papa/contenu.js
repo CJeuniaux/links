@@ -18,6 +18,15 @@ window.CONTENU = {
   pauseMinutes: 30,
 
   // ------------------------------------------------------------------
+  // DISCUTER (Gemini) — ce que l'ordinateur sait de lui pour mieux parler.
+  // Quelques phrases simples. Pas d'informations médicales ni d'adresse.
+  // ------------------------------------------------------------------
+  profil: "Il était biochimiste. Il aime la science, le cinéma, les vieux films classiques et la science-fiction. Il vit en Belgique.",
+
+  // Après chaque réponse, l'ordinateur réécoute une fois tout seul.
+  ecouteAutomatique: true,
+
+  // ------------------------------------------------------------------
   // MESSAGES DE LA FAMILLE
   // Lien CSV d'une Google Sheet « publiée sur le web » (voir README.md).
   // Laisser vide ("") pour utiliser les messages d'exemple ci-dessous.

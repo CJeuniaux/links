@@ -17,7 +17,7 @@ Garde-fous :
 - messages rechargés toutes les 10 minutes ;
 - **quand on rouvre le capot**, la page revient à l'accueil et une voix dit bonjour, la date et l'heure. On peut couper la voix dans `contenu.js`.
 
-Raccourcis clavier : `1` à `4` ouvrent les tuiles, les flèches passent d'un bouton à l'autre, `Entrée` valide.
+Raccourcis clavier : `1` à `6` ouvrent les tuiles, les flèches passent d'un bouton à l'autre, `Entrée` valide.
 
 ---
 
@@ -65,6 +65,25 @@ C'est la solution la plus robuste si l'option A ne suffit pas.
 
 Limite connue : un vrai verrouillage (mode « borne » ou kiosque) n'est possible que sur un Chromebook géré, avec une licence Chrome Enterprise payante. Sans ça, il peut sortir de la page par erreur. Dans ce cas, le personnel ou vous : touche plein écran, ou redémarrer.
 
-## 5. Mise en ligne
+## 5. Activer « Discuter » et « Les nouvelles du jour » (Gemini)
+
+Ces deux tuiles utilisent Gemini, l'intelligence artificielle de Google. La clé reste cachée sur le serveur Vercel et n'apparaît jamais dans la page.
+
+1. Allez sur **aistudio.google.com**, puis **Get API key** → **Create API key**. Copiez la clé.
+2. Sur **vercel.com**, ouvrez le projet **ecran-papa** → **Settings** → **Environment Variables**.
+   - Nom : `GEMINI_API_KEY`
+   - Valeur : la clé
+   - Environnement : Production
+3. Redéployez le projet (onglet Deployments → ⋯ → Redeploy), ou demandez-le à Claude.
+
+> 🔒 **Vie privée** : avec la formule gratuite de Gemini, Google peut relire et utiliser les conversations pour améliorer ses produits. Pour l'éviter, activez la facturation sur le projet Google : le coût est de quelques centimes par mois pour cet usage. La reconnaissance vocale de Chrome envoie aussi la voix à Google.
+
+Sans clé, « Les nouvelles du jour » affichent quand même les titres bruts des journaux scientifiques, et « Discuter » explique poliment que la discussion n'est pas encore activée.
+
+La première fois qu'il appuie sur le micro, Chrome demande **l'autorisation d'utiliser le micro** : acceptez-la vous-même lors de l'installation.
+
+Ce que l'ordinateur sait de lui se règle dans `contenu.js`, sur la ligne `profil`. Les règles de conversation (phrases courtes, ne jamais le corriger, orienter vers le personnel en cas de détresse, etc.) sont dans `api/discuter.js`.
+
+## 6. Mise en ligne
 
 La page est statique (HTML, CSS, JS, sans installation). Elle est hébergée sur Vercel. Pour tester chez vous, ouvrez simplement `index.html` dans Chrome.

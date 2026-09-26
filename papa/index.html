@@ -6,23 +6,33 @@
   <meta name="theme-color" content="#fbf6ec" />
   <title>Le bureau de Papa</title>
   <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Atkinson Hyperlegible : police conçue pour les personnes malvoyantes -->
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --fond: #fbf6ec;
-      --texte: #111111;
-      --doux: #444444;
-      --bleu: #0b4f9c;
-      --vert: #1d6b35;
-      --orange: #b34700;
-      --retour: #222222;
+      --fond: #f7f1e6;
+      --fond2: #efe4d0;
+      --carte: #fffdf8;
+      --texte: #1b1b1b;
+      --doux: #4a4a4a;
+      --bleu: #1f5fa8;
+      --vert: #2e7d32;
+      --orange: #c2500a;
+      --violet: #6a1b9a;
+      --sarcelle: #0f766e;
+      --rose: #b4234a;
+      --retour: #2b2b2b;
+      --jaune: #f2b400;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       height: 100%;
       overflow: hidden;
-      background: var(--fond);
+      background: radial-gradient(ellipse at top left, #fffaf0 0%, var(--fond) 45%, var(--fond2) 100%);
       color: var(--texte);
-      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      font-family: "Atkinson Hyperlegible", "Segoe UI", Roboto, Arial, sans-serif;
       user-select: none;
       -webkit-user-select: none;
     }
@@ -33,43 +43,56 @@
       border: none;
       background: none;
     }
-    button:focus-visible { outline: 8px solid #f2b400; outline-offset: 6px; }
+    button:focus-visible { outline: 8px solid var(--jaune); outline-offset: 6px; }
 
-    .ecran { display: none; height: 100vh; padding: 3vh 4vw; flex-direction: column; gap: 3vh; }
+    .ecran { display: none; height: 100vh; padding: 3vh 3.5vw; flex-direction: column; gap: 2.6vh; animation: apparition .35s ease-out; }
     .ecran.actif { display: flex; }
+    @keyframes apparition { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .ecran { animation: none; } }
 
     /* ---------- Accueil ---------- */
-    .bonjour { font-size: clamp(40px, 7vh, 88px); font-weight: 700; line-height: 1.1; }
-    .quand { font-size: clamp(28px, 4.8vh, 58px); color: var(--doux); line-height: 1.3; }
+    .entete { display: flex; align-items: center; justify-content: space-between; gap: 3vw; }
+    .bonjour { font-size: clamp(40px, 7.5vh, 92px); font-weight: 700; line-height: 1.05; }
+    .quand { font-size: clamp(24px, 4vh, 50px); color: var(--doux); line-height: 1.3; margin-top: .6vh; }
     .quand strong { color: var(--texte); }
-    .tuiles { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 3vw; min-height: 0; }
+    .horloge {
+      flex-shrink: 0; background: var(--carte); border-radius: 28px; padding: 1.4vh 2.4vw;
+      box-shadow: 0 6px 24px rgba(80, 60, 20, .12); text-align: center;
+    }
+    .horloge .heure { font-size: clamp(44px, 9vh, 110px); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+    .horloge .moment { font-size: clamp(20px, 3vh, 36px); color: var(--doux); margin-top: .4vh; }
+    .tuiles { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 2.4vh 2.2vw; min-height: 0; }
     .tuile {
-      display: flex; flex-direction: column; border-radius: 28px; overflow: hidden;
-      color: #fff; text-align: center; min-height: 0;
-      box-shadow: 0 6px 0 rgba(0,0,0,.25);
-      transition: transform .15s;
+      --c: var(--bleu);
+      display: flex; flex-direction: column; border-radius: 30px; overflow: hidden; padding: 1.2vh;
+      color: #fff; text-align: left; min-height: 0; background: var(--c);
+      box-shadow: 0 10px 28px rgba(60, 40, 10, .18);
+      transition: transform .15s, box-shadow .15s;
     }
-    .tuile:hover { transform: scale(1.03); box-shadow: 0 0 0 8px #f2b400; }
+    .tuile:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 0 0 8px var(--jaune), 0 16px 32px rgba(60,40,10,.25); }
     .tuile .image {
-      flex: 1; min-height: 0; background: #ddd center/cover no-repeat;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14vh; position: relative;
+      flex: 1; min-height: 0; border-radius: 22px; position: relative;
+      background: rgba(255,255,255,.18) center/cover no-repeat;
+      display: flex; align-items: center; justify-content: center; font-size: 11vh;
     }
-    .tuile .libelle { padding: 2.2vh 1vw; font-size: clamp(26px, 4.3vh, 52px); font-weight: 700; line-height: 1.15; }
-    .tuile .sous { display: block; font-size: .6em; font-weight: 400; margin-top: .3em; }
-    .t-messages { background: var(--bleu); }
-    .t-savant { background: var(--vert); }
-    .t-videos { background: var(--orange); }
-    .t-films { background: #6a1b6f; }
+    .tuile .libelle { padding: 1.4vh .8vw .4vh; font-size: clamp(24px, 4vh, 50px); font-weight: 700; line-height: 1.1; }
+    .tuile .sous { display: block; font-size: .62em; font-weight: 400; opacity: .92; margin-top: .15em; }
+    .t-messages { --c: var(--bleu); }
+    .t-nouvelles { --c: var(--sarcelle); }
+    .t-savant { --c: var(--vert); }
+    .t-discuter { --c: var(--rose); }
+    .t-videos { --c: var(--orange); }
+    .t-films { --c: var(--violet); }
     .pastille {
-      position: absolute; top: 2vh; right: 2vh; background: #d10000; color: #fff;
+      position: absolute; top: 1.4vh; right: 1.4vh; background: #d10000; color: #fff;
       font-size: clamp(24px, 4vh, 48px); font-weight: 700; border-radius: 999px;
-      min-width: 1.6em; padding: .1em .4em; border: 4px solid #fff;
+      min-width: 1.6em; padding: .05em .4em; border: 4px solid #fff; text-align: center;
     }
 
     /* ---------- Barre du haut des autres écrans ---------- */
     .haut { display: flex; align-items: center; gap: 3vw; }
     .btn-retour {
+      box-shadow: 0 6px 18px rgba(0,0,0,.18);
       background: var(--retour); color: #fff; border-radius: 22px;
       font-size: clamp(28px, 4.6vh, 56px); font-weight: 700; padding: 1.6vh 3vw;
       display: flex; align-items: center; gap: .4em; flex-shrink: 0;
@@ -80,13 +103,16 @@
     .gros-btn {
       border-radius: 22px; color: #fff; font-size: clamp(26px, 4.2vh, 50px); font-weight: 700;
       padding: 2vh 3vw; display: inline-flex; align-items: center; gap: .4em;
+      box-shadow: 0 8px 20px rgba(0,0,0,.18);
     }
     .gros-btn:hover { box-shadow: 0 0 0 8px #f2b400; }
     .actions { display: flex; gap: 3vw; flex-wrap: wrap; }
 
     /* ---------- Contenu (messages / savant) ---------- */
     .contenu { flex: 1; display: flex; gap: 4vw; min-height: 0; align-items: center; }
+    .contenu > .texte { background: var(--carte); border-radius: 30px; padding: 4vh 3vw; box-shadow: 0 8px 26px rgba(80,60,20,.12); }
     .portrait {
+      box-shadow: 0 10px 28px rgba(60,40,10,.2);
       width: 38vh; height: 38vh; max-width: 36vw; flex-shrink: 0; border-radius: 28px;
       background: #ccc center/cover no-repeat; display: flex; align-items: center; justify-content: center;
       font-size: 18vh; font-weight: 700; color: #fff;
@@ -99,7 +125,8 @@
 
     /* ---------- Vidéos ---------- */
     .choix-videos { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3vw; min-height: 0; }
-    .choix-videos .tuile { background: var(--orange); }
+    .choix-videos .tuile { --c: var(--orange); }
+    .choix-videos.films .tuile { --c: var(--violet); }
     .choix-videos .libelle { font-size: clamp(24px, 3.6vh, 44px); }
     .lecteur { flex: 1; border-radius: 20px; overflow: hidden; background: #000; }
     .pause {
@@ -107,6 +134,22 @@
       flex-direction: column; align-items: center; justify-content: center; gap: 6vh; text-align: center;
     }
     .pause.visible { display: flex; }
+    /* ---------- Discuter ---------- */
+    .conversation { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 3vh; min-height: 0; }
+    .bulle { border-radius: 30px; padding: 3vh 3vw; font-size: clamp(30px, 5.4vh, 66px); line-height: 1.3; box-shadow: 0 8px 26px rgba(80,60,20,.12); }
+    .bulle:empty { display: none; }
+    .bulle.lui { background: #e7eef8; color: #243b5a; align-self: flex-start; max-width: 85%; }
+    .bulle.ordi { background: var(--carte); align-self: flex-end; max-width: 92%; }
+    .micro-zone { display: flex; align-items: center; justify-content: center; gap: 3vw; }
+    .micro {
+      width: 22vh; height: 22vh; border-radius: 50%; background: var(--rose); color: #fff; font-size: 11vh;
+      box-shadow: 0 12px 30px rgba(180,35,74,.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .micro:hover { box-shadow: 0 0 0 10px var(--jaune), 0 12px 30px rgba(180,35,74,.4); }
+    .micro.ecoute { animation: pulse 1.2s ease-in-out infinite; background: #d62d5a; }
+    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(214,45,90,.6); } 50% { box-shadow: 0 0 0 4vh rgba(214,45,90,0); } }
+    .etat { font-size: clamp(28px, 5vh, 60px); font-weight: 700; }
+
     .lecteur iframe, .lecteur > div { width: 100%; height: 100%; border: 0; }
   </style>
 </head>
@@ -114,18 +157,29 @@
 
   <!-- ================= ACCUEIL ================= -->
   <section class="ecran actif" id="accueil">
-    <div>
-      <div class="bonjour" id="bonjour">Bonjour</div>
-      <div class="quand" id="quand"></div>
+    <div class="entete">
+      <div>
+        <div class="bonjour" id="bonjour">Bonjour</div>
+        <div class="quand" id="quand"></div>
+      </div>
+      <div class="horloge"><div class="heure" id="heure"></div><div class="moment" id="moment"></div></div>
     </div>
     <div class="tuiles">
       <button class="tuile t-messages" data-aller="messages" id="tuile-messages">
         <div class="image" id="img-messages">✉️</div>
         <div class="libelle">Messages<span class="sous">de la famille</span></div>
       </button>
+      <button class="tuile t-nouvelles" data-aller="nouvelles">
+        <div class="image" id="img-nouvelles">📰</div>
+        <div class="libelle">Les nouvelles<span class="sous">du jour</span></div>
+      </button>
       <button class="tuile t-savant" data-aller="savant">
         <div class="image" id="img-savant">🔬</div>
         <div class="libelle">Le savant<span class="sous">du jour</span></div>
+      </button>
+      <button class="tuile t-discuter" data-aller="discuter">
+        <div class="image" id="img-discuter">🎙️</div>
+        <div class="libelle">Discuter<span class="sous">avec l'ordinateur</span></div>
       </button>
       <button class="tuile t-videos" data-aller="videos">
         <div class="image" id="img-videos">🎬</div>
@@ -155,6 +209,42 @@
     <div class="actions">
       <button class="gros-btn" style="background:var(--vert)" id="msg-ecouter">🔊 Écouter</button>
       <button class="gros-btn" style="background:var(--bleu)" id="msg-suivant">Message suivant ➡</button>
+    </div>
+  </section>
+
+  <!-- ================= NOUVELLES DU JOUR ================= -->
+  <section class="ecran" id="nouvelles">
+    <div class="haut">
+      <button class="btn-retour" data-aller="accueil">⬅ Retour</button>
+      <div class="titre">Les nouvelles du jour</div>
+    </div>
+    <div class="contenu">
+      <div class="portrait grand" id="nv-image">📰</div>
+      <div class="texte">
+        <div class="qui" id="nv-titre"></div>
+        <div class="corps" id="nv-texte"></div>
+        <div class="petit" id="nv-source"></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="gros-btn" style="background:var(--vert)" id="nv-ecouter">🔊 Écouter</button>
+      <button class="gros-btn" style="background:var(--sarcelle)" id="nv-suivant">Nouvelle suivante ➡</button>
+    </div>
+  </section>
+
+  <!-- ================= DISCUTER ================= -->
+  <section class="ecran" id="discuter">
+    <div class="haut">
+      <button class="btn-retour" data-aller="accueil">⬅ Retour</button>
+      <div class="titre">Discuter avec l'ordinateur</div>
+    </div>
+    <div class="conversation">
+      <div class="bulle lui" id="disc-lui"></div>
+      <div class="bulle ordi" id="disc-ordi"></div>
+    </div>
+    <div class="micro-zone">
+      <button class="micro" id="disc-micro" aria-label="Parler">🎤</button>
+      <div class="etat" id="disc-etat">Appuie sur le bouton rouge et parle.</div>
     </div>
   </section>
 
@@ -228,12 +318,13 @@
                v.filter(function (x) { return /google/i.test(x.name); })[0] || v[0] || null;
     }
     if ("speechSynthesis" in window) { chercherVoix(); speechSynthesis.onvoiceschanged = chercherVoix; }
-    function dire(texte) {
-      if (!("speechSynthesis" in window) || !texte) return;
+    function dire(texte, fin) {
+      if (!("speechSynthesis" in window) || !texte) { if (fin) fin(); return; }
       speechSynthesis.cancel();
       var u = new SpeechSynthesisUtterance(texte);
       u.lang = "fr-FR"; u.rate = 0.85;
       if (voixFr) u.voice = voixFr;
+      if (fin) { var fait = false; u.onend = u.onerror = function () { if (!fait) { fait = true; fin(); } }; }
       speechSynthesis.speak(u);
     }
     function taire() { if ("speechSynthesis" in window) speechSynthesis.cancel(); }
@@ -246,10 +337,13 @@
         nom = "videos";
       }
       if (ecranActuel === "lecture" && nom !== "lecture") arreterLecteur();
+      if (ecranActuel === "discuter" && nom !== "discuter") fermerDiscussion();
       document.querySelectorAll(".ecran").forEach(function (e) { e.classList.toggle("actif", e.id === nom); });
       ecranActuel = nom;
       if (nom === "messages") ouvrirMessages();
       if (nom === "savant") ouvrirSavant();
+      if (nom === "nouvelles") ouvrirNouvelles();
+      if (nom === "discuter") ouvrirDiscussion();
       if (nom === "accueil") majAccueil();
       var premier = document.querySelector("#" + nom + " button");
       if (premier) premier.focus({ preventScroll: true });
@@ -264,8 +358,8 @@
       if (e.key === "Escape" || e.key === "Backspace") {
         e.preventDefault();
         aller(ecranActuel === "lecture" ? "videos" : "accueil");
-      } else if (ecranActuel === "accueil" && ["1", "2", "3", "4"].indexOf(e.key) >= 0) {
-        aller(["messages", "savant", "videos", "films"][+e.key - 1]);
+      } else if (ecranActuel === "accueil" && ["1", "2", "3", "4", "5", "6"].indexOf(e.key) >= 0) {
+        aller(["messages", "nouvelles", "savant", "discuter", "videos", "films"][+e.key - 1]);
       } else if (/^Arrow/.test(e.key)) {
         var btns = Array.prototype.slice.call(document.querySelectorAll("#" + ecranActuel + " button"));
         var i = btns.indexOf(document.activeElement);
@@ -305,8 +399,14 @@
       $("bonjour").textContent = salut + (C.prenom || "") + " !";
       var date = d.toLocaleDateString("fr-BE", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
       date = date.charAt(0).toUpperCase() + date.slice(1);
-      var heure = h + " h " + String(d.getMinutes()).padStart(2, "0");
-      $("quand").innerHTML = "Nous sommes <strong>" + date + "</strong>. Il est <strong>" + heure + "</strong>. " + moment(h) + ".";
+      $("quand").innerHTML = "Nous sommes <strong>" + date + "</strong>.";
+      $("heure").textContent = h + ":" + String(d.getMinutes()).padStart(2, "0");
+      $("moment").textContent = moment(h);
+    }
+    function phraseDuMoment() {
+      var d = new Date();
+      return $("bonjour").textContent + " " + $("quand").textContent + " Il est " + d.getHours() + " heures " +
+        (d.getMinutes() ? d.getMinutes() : "") + ". " + moment(d.getHours()) + ".";
     }
     majHorloge();
     setInterval(majHorloge, 20000);
@@ -461,6 +561,7 @@
       toutesVideos = melange(videosValides(), jourNumero());
       pageVideos = 0;
       $("titre-videos").textContent = r === "films" ? "Quel film veux-tu voir ?" : "Que veux-tu regarder ?";
+      $("choix-videos").classList.toggle("films", r === "films");
       construireVideos();
     }
     function vignette(v) { return "https://i.ytimg.com/vi/" + encodeURIComponent(v.vignette || v.id) + "/hqdefault.jpg"; }
@@ -591,6 +692,124 @@
       });
     }
 
+    // ---------- Nouvelles du jour ----------
+    var nouvelles = [], indexNouvelle = 0;
+    function chargerNouvelles() {
+      var cache = lire("nouvelles", null);
+      if (cache && cache.jour === jourNumero() && cache.liste.length) { nouvelles = cache.liste; majAccueil(); return; }
+      fetch("api/nouvelles")
+        .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+        .then(function (j) {
+          nouvelles = j.nouvelles || [];
+          if (nouvelles.length) ecrire("nouvelles", { jour: jourNumero(), liste: nouvelles });
+          majAccueil();
+        })
+        .catch(function () { if (cache) nouvelles = cache.liste; });
+    }
+    function afficherNouvelle() {
+      var p = $("nv-image");
+      p.style.backgroundImage = ""; p.textContent = "📰";
+      if (!nouvelles.length) {
+        $("nv-titre").textContent = "Les nouvelles arrivent bientôt.";
+        $("nv-texte").textContent = "Reviens un peu plus tard.";
+        $("nv-source").textContent = "";
+        $("nv-suivant").style.display = "none";
+        return;
+      }
+      var n = nouvelles[indexNouvelle % nouvelles.length];
+      fond(p, n.image);
+      p.style.backgroundSize = n.image ? "cover" : "";
+      $("nv-titre").textContent = n.titre;
+      $("nv-texte").textContent = n.texte;
+      $("nv-source").textContent = n.source ? "Source : " + n.source : "";
+      $("nv-suivant").style.display = nouvelles.length > 1 ? "" : "none";
+      dire(n.titre + ". " + n.texte);
+    }
+    function ouvrirNouvelles() { indexNouvelle = 0; afficherNouvelle(); }
+    $("nv-suivant").addEventListener("click", function () { indexNouvelle++; afficherNouvelle(); });
+    $("nv-ecouter").addEventListener("click", function () {
+      var n = nouvelles[indexNouvelle % nouvelles.length];
+      if (n) dire(n.titre + ". " + n.texte);
+    });
+
+    // ---------- Discuter (reconnaissance vocale de Chrome + Gemini) ----------
+    var Reco = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var reco = null, historique = [], ecoute = false, relances = 0;
+    function etat(t) { $("disc-etat").textContent = t; }
+    function ouvrirDiscussion() {
+      historique = []; relances = 0;
+      $("disc-lui").textContent = "";
+      $("disc-ordi").textContent = "Bonjour ! De quoi as-tu envie de parler ?";
+      if (!Reco) { etat("Le micro ne fonctionne pas sur cet ordinateur."); return; }
+      etat("Appuie sur le bouton rouge et parle.");
+      dire("Bonjour ! De quoi as-tu envie de parler ? Appuie sur le bouton rouge.");
+    }
+    function fermerDiscussion() {
+      ecoute = false;
+      if (reco) { try { reco.abort(); } catch (e) {} reco = null; }
+      $("disc-micro").classList.remove("ecoute");
+    }
+    function ecouter() {
+      if (!Reco || ecoute) return;
+      taire();
+      reco = new Reco();
+      reco.lang = "fr-FR"; reco.interimResults = true; reco.continuous = false; reco.maxAlternatives = 1;
+      var texte = "";
+      reco.onresult = function (e) {
+        texte = Array.prototype.map.call(e.results, function (r) { return r[0].transcript; }).join(" ");
+        $("disc-lui").textContent = texte;
+      };
+      reco.onerror = function (e) {
+        if (e.error === "not-allowed" || e.error === "service-not-allowed") etat("Il faut autoriser le micro.");
+      };
+      reco.onend = function () {
+        ecoute = false; reco = null;
+        $("disc-micro").classList.remove("ecoute");
+        if (ecranActuel !== "discuter") return;
+        if (texte.trim()) { relances = 0; repondre(texte.trim()); }
+        else etat("Appuie sur le bouton rouge et parle.");
+      };
+      ecoute = true;
+      $("disc-micro").classList.add("ecoute");
+      $("disc-lui").textContent = "";
+      etat("Je t'écoute…");
+      try { reco.start(); } catch (e) { ecoute = false; $("disc-micro").classList.remove("ecoute"); }
+    }
+    function repondre(texte) {
+      historique.push({ qui: "lui", texte: texte });
+      etat("Je réfléchis…");
+      fetch("api/discuter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ historique: historique.slice(-12), profil: C.profil || "" })
+      })
+        .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw j; return j; }); })
+        .then(function (j) {
+          if (ecranActuel !== "discuter") return;
+          historique.push({ qui: "ordi", texte: j.reponse });
+          $("disc-ordi").textContent = j.reponse;
+          etat("");
+          dire(j.reponse, function () {
+            if (ecranActuel !== "discuter") return;
+            // On réécoute une fois tout seul, pour que la conversation continue sans bouton.
+            if (relances < 1 && C.ecouteAutomatique !== false) { relances++; ecouter(); }
+            else etat("Appuie sur le bouton rouge et parle.");
+          });
+        })
+        .catch(function (j) {
+          if (ecranActuel !== "discuter") return;
+          var msg = j && j.erreur === "non configuré"
+            ? "La discussion n'est pas encore activée."
+            : "Je n'arrive pas à répondre pour le moment. Réessaie un peu plus tard.";
+          $("disc-ordi").textContent = msg; dire(msg);
+          etat("Appuie sur le bouton rouge et parle.");
+        });
+    }
+    $("disc-micro").addEventListener("click", function () {
+      relances = 0;
+      if (ecoute && reco) reco.stop(); else ecouter();
+    });
+
     // ---------- Images des tuiles d'accueil ----------
     function majAccueil() {
       var n = nonLus();
@@ -601,6 +820,7 @@
       if (dernier && photoDe(dernier)) fond(im, photoDe(dernier)); else im.textContent = "✉️";
       if (n > 0) { var p = document.createElement("span"); p.className = "pastille"; p.textContent = n; im.appendChild(p); }
       if (savantImage) fond($("img-savant"), savantImage);
+      if (nouvelles[0] && nouvelles[0].image) fond($("img-nouvelles"), nouvelles[0].image);
       var d = melange(C.videos || [], jourNumero())[0], f = melange(C.films || [], jourNumero())[0];
       if (d) fond($("img-videos"), vignette(d));
       if (f) fond($("img-films"), vignette(f));
@@ -609,6 +829,7 @@
     construireVideos();
     chargerMessages();
     chargerSavant();
+    chargerNouvelles();
     majAccueil();
     setInterval(chargerMessages, 10 * 60 * 1000); // nouveaux messages toutes les 10 minutes
     // Frein à la fermeture : Chrome demande « Quitter le site ? » avant de fermer.
@@ -634,7 +855,7 @@
       chargerMessages();
       majHorloge();
       if (C.direBonjourAuReveil !== false) {
-        setTimeout(function () { dire($("bonjour").textContent + " " + $("quand").textContent); }, 1500);
+        setTimeout(function () { dire(phraseDuMoment()); }, 1500);
       }
     }
     setInterval(function () {
