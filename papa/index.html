@@ -354,14 +354,17 @@
     function chercherVoix() {
       if (!("speechSynthesis" in window)) return;
       var v = speechSynthesis.getVoices().filter(function (x) { return /^fr/i.test(x.lang); });
-      voixFr = v.filter(function (x) { return /fr-BE/i.test(x.lang); })[0] ||
+      // Une voix installée sur l'ordinateur démarre bien plus vite qu'une voix en ligne.
+      var locales = v.filter(function (x) { return x.localService; });
+      voixFr = locales.filter(function (x) { return /fr-BE/i.test(x.lang); })[0] || locales[0] ||
+               v.filter(function (x) { return /fr-BE/i.test(x.lang); })[0] ||
                v.filter(function (x) { return /google/i.test(x.name); })[0] || v[0] || null;
     }
     if ("speechSynthesis" in window) { chercherVoix(); speechSynthesis.onvoiceschanged = chercherVoix; }
     // Chrome a plusieurs défauts : parler juste après cancel() échoue parfois,
     // et les phrases longues s'arrêtent au bout de ~15 s. On contourne les deux.
     var numeroParole = 0;
-    function dire(texte, fin, essai) {
+    function dire(texte, fin, essai, debut) {
       if (!("speechSynthesis" in window)) { if (fin) fin("pas de synthèse vocale"); return; }
       if (!texte) { if (fin) fin(); return; }
       var moi = ++numeroParole, fait = false, commence = false, garde = null;
@@ -376,13 +379,13 @@
         var u = new SpeechSynthesisUtterance(texte);
         u.lang = "fr-FR"; u.rate = 0.85; u.volume = 1;
         if (voixFr) u.voice = voixFr;
-        u.onstart = function () { commence = true; };
+        u.onstart = function () { commence = true; if (debut) debut(); };
         u.onend = function () { finir(); };
         u.onerror = function (e) {
           // Interrompu par une autre parole : on ne relance rien.
           if (e.error === "interrupted" || e.error === "canceled") { fait = true; clearInterval(garde); return; }
           // Autre erreur (haut-parleur occupé juste après le micro…) : on réessaie une fois.
-          if (!essai) { fait = true; clearInterval(garde); setTimeout(function () { dire(texte, fin, true); }, 900); return; }
+          if (!essai) { fait = true; clearInterval(garde); setTimeout(function () { dire(texte, fin, true, debut); }, 900); return; }
           finir(e.error || "erreur");
         };
         speechSynthesis.resume();
@@ -396,7 +399,7 @@
           if (commence || fait || moi !== numeroParole) return;
           if (!essai) {
             fait = true; clearInterval(garde); speechSynthesis.cancel();
-            setTimeout(function () { dire(texte, fin, true); }, 300);
+            setTimeout(function () { dire(texte, fin, true, debut); }, 300);
           } else finir("la voix n'a pas démarré");
         }, 3000);
       }, occupe ? 300 : 50);
@@ -884,19 +887,27 @@
         .then(function (j) {
           if (ecranActuel !== "discuter") return;
           historique.push({ qui: "ordi", texte: j.reponse });
-          $("disc-ordi").textContent = j.reponse;
-          $("disc-reecouter").style.display = "";
-          etat("");
+          // Le texte apparaît au moment où la voix commence (au plus tard après 4 s).
+          var affiche = false;
+          function afficher() {
+            if (affiche || ecranActuel !== "discuter") return;
+            affiche = true;
+            $("disc-ordi").textContent = j.reponse;
+            $("disc-reecouter").style.display = "";
+            etat("");
+          }
+          setTimeout(afficher, 4000);
           // Petit délai : juste après le micro, Chrome refuse parfois de parler.
           setTimeout(function () {
             if (ecranActuel !== "discuter") return;
             dire(j.reponse, function (erreur) {
+              afficher();
               if (ecranActuel !== "discuter") return;
               if (erreur) { etat("Appuie sur le micro, puis parle."); montrerErreurVoix(erreur); return; }
               if (relances < 1 && C.ecouteAutomatique === true) { relances++; ecouter(); }
               else etat("Appuie sur le micro, puis parle.");
-            });
-          }, 600);
+            }, false, afficher);
+          }, 250);
         })
         .catch(function (j) {
           if (ecranActuel !== "discuter") return;

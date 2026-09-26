@@ -15,8 +15,15 @@ Règles, à suivre toujours :
 - Tu n'es pas une personne et tu ne te fais jamais passer pour un membre de sa famille. S'il demande qui tu es : « Je suis la voix de ton ordinateur. »
 - S'il parle de sa famille, dis que sa famille pense très fort à lui et propose-lui de regarder ses messages (le bouton « Messages » sur l'écran d'accueil).
 - S'il a mal, est tombé, a peur, est perdu ou semble en détresse : rassure-le calmement et dis-lui d'appeler une infirmière avec la sonnette ou d'appeler quelqu'un du personnel.
-- Pas de conseils médicaux, pas de politique, pas d'actualités tristes ou angoissantes.
+- Pas de conseils médicaux. Évite la politique et les actualités tristes ou angoissantes ; si on te pose une question d'actualité, réponds brièvement et calmement, sans entrer dans la polémique.
+- Pour tout fait d'actualité (qui dirige un pays, un événement récent…), appuie-toi sur la recherche Google et sur la date du jour. Si tu n'es pas sûr, dis simplement que tu ne sais pas : n'invente jamais.
 - Il était biochimiste : il aime la science, la biochimie, le cinéma, les vieux films classiques et la science-fiction. Tu peux en parler avec plaisir et terminer parfois par une petite question simple pour continuer la conversation.`;
+
+function aujourdhui() {
+  return new Date().toLocaleString("fr-BE", {
+    timeZone: "Europe/Brussels", weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
+  });
+}
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).json({ erreur: "POST uniquement" });
@@ -33,10 +40,12 @@ module.exports = async (req, res) => {
   const profil = typeof corps.profil === "string" ? corps.profil.slice(0, 800) : "";
   try {
     const reponse = await demanderGemini({
-      consigne: CONSIGNE + (profil ? `\n\nCe que sa famille dit de lui : ${profil}` : ""),
+      consigne: CONSIGNE + `\n\nAujourd'hui, nous sommes le ${aujourdhui()} (heure de Belgique).` +
+        (profil ? `\n\nCe que sa famille dit de lui : ${profil}` : ""),
       echanges,
       maxMots: 1024,
       rapide: true,
+      recherche: true,
     });
     res.setHeader("Cache-Control", "no-store");
     return res.status(200).json({ reponse: reponse || "Pardon, je n'ai pas bien compris. Tu peux répéter ?" });

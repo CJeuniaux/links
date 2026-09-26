@@ -22,34 +22,44 @@ async function appeler(modele, corps) {
   return parts.filter((p) => p.text && !p.thought).map((p) => p.text).join("").trim();
 }
 
-async function demanderGemini({ consigne, echanges, json = false, maxMots = 2048, rapide = false }) {
+async function demanderGemini({ consigne, echanges, json = false, maxMots = 2048, rapide = false, recherche = false }) {
   if (!process.env.GEMINI_API_KEY) {
     const e = new Error("GEMINI_API_KEY manquante");
     e.status = 503;
     throw e;
   }
-  const corps = {
+  const base = {
     systemInstruction: { parts: [{ text: consigne }] },
     contents: echanges.map((m) => ({ role: m.role, parts: [{ text: m.texte }] })),
     generationConfig: { temperature: 0.7, maxOutputTokens: maxMots },
   };
-  if (json) corps.generationConfig.responseMimeType = "application/json";
+  if (json) base.generationConfig.responseMimeType = "application/json";
+  const avec = (opts) => {
+    const c = { ...base, generationConfig: { ...base.generationConfig } };
+    if (opts.rapide) c.generationConfig.thinkingConfig = { thinkingLevel: "low" };
+    if (opts.recherche) c.tools = [{ google_search: {} }];
+    return c;
+  };
+  // Du plus complet au plus simple : si le modèle refuse une option (erreur 400), on l'enlève.
+  const variantes = [];
+  if (rapide || recherche) variantes.push({ rapide, recherche });
+  if (rapide && recherche) variantes.push({ rapide: false, recherche });
+  variantes.push({});
   const modele = process.env.GEMINI_MODEL || MODELE_DEFAUT;
-  if (rapide) {
-    // Réflexion minimale = réponse plus rapide. Si le modèle ne connaît pas l'option, on continue sans.
+  let derniere;
+  for (const v of variantes) {
     try {
-      return await appeler(modele, { ...corps, generationConfig: { ...corps.generationConfig, thinkingConfig: { thinkingLevel: "low" } } });
+      return await appeler(modele, avec(v));
     } catch (e) {
-      if (e.status !== 400) throw e;
+      derniere = e;
+      if (e.status !== 400) break;
     }
   }
-  try {
-    return await appeler(modele, corps);
-  } catch (e) {
-    // Modèle inconnu ou retiré : on essaie l'alias « dernier Flash ».
-    if ((e.status === 404 || e.status === 400) && modele !== MODELE_SECOURS) return appeler(MODELE_SECOURS, corps);
-    throw e;
+  // Modèle inconnu ou retiré : on essaie l'alias « dernier Flash ».
+  if (derniere && (derniere.status === 404 || derniere.status === 400) && modele !== MODELE_SECOURS) {
+    return appeler(MODELE_SECOURS, avec(recherche ? { recherche } : {})).catch(() => appeler(MODELE_SECOURS, avec({})));
   }
+  throw derniere;
 }
 
 // Refuse les appels qui ne viennent pas de la page (évite qu'on utilise la clé ailleurs).
