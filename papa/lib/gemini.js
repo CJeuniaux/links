@@ -52,7 +52,8 @@ async function demanderGemini({ consigne, echanges, json = false, maxMots = 2048
       return await appeler(modele, avec(v));
     } catch (e) {
       derniere = e;
-      if (e.status !== 400) break;
+      // Option refusée (400), non autorisée (403) ou quota dépassé (429) : on essaie sans.
+      if (![400, 403, 429].includes(e.status)) break;
     }
   }
   // Modèle inconnu ou retiré : on essaie l'alias « dernier Flash ».

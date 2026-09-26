@@ -832,8 +832,8 @@
     function etat(t) { $("disc-etat").textContent = t; }
     function montrerErreurVoix(erreur) {
       var voix = voixFr ? voixFr.name : "aucune voix française";
-      $("disc-etat").innerHTML = "Appuie sur le micro, puis parle.<br><small style=\"font-size:.45em;font-weight:400;color:#8a7a60\">Son : " +
-        String(erreur).replace(/[<>&]/g, "") + " (" + voix.replace(/[<>&]/g, "") + ")</small>";
+      $("disc-etat").innerHTML = "Appuie sur le micro, puis parle.<br><small style=\"font-size:.45em;font-weight:400;color:#8a7a60\">Info : " +
+        String(erreur).replace(/[<>&]/g, "") + (/^serveur/.test(erreur) ? "" : " (" + voix.replace(/[<>&]/g, "") + ")") + "</small>";
     }
     function ouvrirDiscussion() {
       historique = []; relances = 0;
@@ -916,6 +916,8 @@
             : "Je n'arrive pas à répondre pour le moment. Réessaie un peu plus tard.";
           $("disc-ordi").textContent = msg; dire(msg);
           etat("Appuie sur le micro, puis parle.");
+          if (j && j.detail) montrerErreurVoix("serveur : " + j.detail);
+          else if (!j || !j.erreur) montrerErreurVoix("serveur injoignable ou trop lent");
         });
     }
     $("disc-reecouter").addEventListener("click", function () {
