@@ -321,7 +321,10 @@
   <section class="ecran" id="lecture">
     <div class="haut">
       <button class="btn-retour" id="retour-lecture">⬅ Retour</button>
-      <div class="titre" id="lecture-titre"></div>
+      <div>
+        <div class="titre" id="lecture-titre"></div>
+        <div id="lecture-info" style="font-size:15px;color:#8a7a60"></div>
+      </div>
     </div>
     <div class="lecteur" id="lecteur"></div>
     <div class="pause" id="pause">
@@ -643,7 +646,9 @@
       }
       return r;
     }
-    var mauvaises = lire("videosMauvaises", []);
+    // Seules les vidéos supprimées (erreur 100) sont écartées pour de bon.
+    try { localStorage.removeItem("videosMauvaises"); } catch (e) {}
+    var mauvaises = lire("videosSupprimees", []);
     function videosValides() {
       return (C[rubrique] || []).filter(function (v) { return mauvaises.indexOf(v.id || v.playlist) < 0; });
     }
@@ -694,9 +699,10 @@
     var lecteur = null, videoEnCours = null, apiPrete = null, erreursDeSuite = 0;
     function chargerApi() {
       if (apiPrete) return apiPrete;
-      apiPrete = new Promise(function (ok) {
+      apiPrete = new Promise(function (ok, ko) {
         window.onYouTubeIframeAPIReady = ok;
         var sc = document.createElement("script");
+        sc.onerror = function () { apiPrete = null; ko(new Error("api")); };
         sc.src = "https://www.youtube.com/iframe_api";
         document.head.appendChild(sc);
       });
@@ -733,24 +739,49 @@
       lecteur = null; videoEnCours = null;
       $("lecteur").innerHTML = "";
     }
+    // Lecteur YouTube simple (sans l'API) : secours quand l'API ne charge pas.
+    function lecteurSimple(v, raison) {
+      if (videoEnCours !== v) return;
+      if (lecteur && lecteur.destroy) { try { lecteur.destroy(); } catch (e) {} }
+      lecteur = null;
+      var f = document.createElement("iframe");
+      f.src = "https://www.youtube.com/embed/" + (v.playlist ? "videoseries?list=" + encodeURIComponent(v.playlist) + "&" : encodeURIComponent(v.id) + "?") +
+              "autoplay=1&rel=0&playsinline=1&hl=fr";
+      f.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture";
+      f.allowFullscreen = true;
+      f.referrerPolicy = "strict-origin-when-cross-origin";
+      $("lecteur").innerHTML = "";
+      $("lecteur").appendChild(f);
+      if (raison) infoVideo(raison);
+    }
+    function infoVideo(t) {
+      var el = $("lecture-info");
+      if (el) el.textContent = t ? "Info : " + t : "";
+    }
+
     function lancer(v) {
       arreterLecteur();
       videoEnCours = v;
       $("lecture-titre").textContent = v.titre;
+      infoVideo("");
       var div = document.createElement("div");
       $("lecteur").appendChild(div);
       aller("lecture");
+      var pret = false;
+      // Connexion lente : si le lecteur n'est pas prêt en 10 s, lecteur simple.
+      setTimeout(function () { if (!pret && videoEnCours === v) lecteurSimple(v, "lecteur lent, mode simple"); }, 10000);
       var vars = { autoplay: 1, rel: 0, modestbranding: 1, playsinline: 1, hl: "fr", cc_lang_pref: "fr", iv_load_policy: 3 };
       if (v.playlist) { vars.listType = "playlist"; vars.list = v.playlist; }
       chargerApi().then(function () {
         if (videoEnCours !== v) return;
+        if (!div.isConnected) return; // déjà remplacé par le lecteur simple
         lecteur = new YT.Player(div, {
-          host: "https://www.youtube-nocookie.com",
           width: "100%", height: "100%",
           videoId: v.playlist ? undefined : v.id,
           playerVars: vars,
           events: {
             onReady: function (e) {
+              pret = true;
               if (v.playlist) {
                 e.target.setShuffle(true);
                 var n = (e.target.getPlaylist() || []).length;
@@ -770,12 +801,16 @@
               }
             },
             onError: function (e) {
-              // 100 = supprimée, 101/150 = intégration interdite : on n'y revient plus
-              if (!v.playlist && [100, 101, 150].indexOf(e.data) >= 0) {
-                mauvaises.push(v.id); ecrire("videosMauvaises", mauvaises.slice(-100));
+              pret = true;
+              // 100 = vidéo supprimée : on n'y revient plus.
+              if (!v.playlist && e.data === 100) {
+                mauvaises.push(v.id); ecrire("videosSupprimees", mauvaises.slice(-100));
                 toutesVideos = toutesVideos.filter(function (x) { return x !== v; });
                 construireVideos();
               }
+              // Autre souci que « supprimée » ou « intégration interdite » : on tente le lecteur simple.
+              if ([100, 101, 150].indexOf(e.data) < 0) { lecteurSimple(v, "erreur YouTube " + e.data + ", mode simple"); return; }
+              infoVideo("vidéo indisponible (" + e.data + "), une autre est lancée");
               if (++erreursDeSuite > 5) { erreursDeSuite = 0; aller("videos"); return; }
               var autres = toutesVideos.filter(function (x) { return x !== v; });
               if (autres.length) lancer(autres[Math.floor(Math.random() * autres.length)]);
@@ -783,7 +818,7 @@
             }
           }
         });
-      });
+      }).catch(function () { lecteurSimple(v, "lecteur YouTube non chargé, mode simple"); });
     }
 
     // ---------- Nouvelles du jour ----------
@@ -841,6 +876,7 @@
       $("disc-lui").textContent = "";
       $("disc-ordi").textContent = "Bonjour ! De quoi as-tu envie de parler ?";
       if (!Reco) { etat("Le micro ne fonctionne pas sur cet ordinateur."); return; }
+      if (!navigator.onLine) etat("Pas de connexion internet.");
       etat("Appuie sur le micro, puis parle.");
     }
     function fermerDiscussion() {

@@ -51,8 +51,8 @@ module.exports = async (req, res) => {
     return res.status(200).json({ reponse: reponse || "Pardon, je n'ai pas bien compris. Tu peux répéter ?" });
   } catch (e) {
     console.error(e.message);
-    return res.status(e.status === 503 ? 503 : 502).json({
-      erreur: e.status === 503 ? "non configuré" : "indisponible",
+    return res.status(e.sansCle ? 503 : 502).json({
+      erreur: e.sansCle ? "non configuré" : "indisponible",
       // Détail pour le diagnostic (ne contient jamais la clé).
       detail: String(e.message || "").replace(/key=[^&\s]+/gi, "key=…").slice(0, 160),
     });

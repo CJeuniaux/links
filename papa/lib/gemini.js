@@ -3,7 +3,18 @@
 const MODELE_DEFAUT = "gemini-3.8-flash";
 const MODELE_SECOURS = "gemini-flash-latest";
 
+// Gemini surchargé (500/503) : on réessaie une fois après une petite pause.
 async function appeler(modele, corps) {
+  try {
+    return await appelerUneFois(modele, corps);
+  } catch (e) {
+    if (e.status !== 500 && e.status !== 503) throw e;
+    await new Promise((r) => setTimeout(r, 1200));
+    return appelerUneFois(modele, corps);
+  }
+}
+
+async function appelerUneFois(modele, corps) {
   const r = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${modele}:generateContent`,
     {
@@ -26,6 +37,7 @@ async function demanderGemini({ consigne, echanges, json = false, maxMots = 2048
   if (!process.env.GEMINI_API_KEY) {
     const e = new Error("GEMINI_API_KEY manquante");
     e.status = 503;
+    e.sansCle = true;
     throw e;
   }
   const base = {
@@ -57,7 +69,7 @@ async function demanderGemini({ consigne, echanges, json = false, maxMots = 2048
     }
   }
   // Modèle inconnu ou retiré : on essaie l'alias « dernier Flash ».
-  if (derniere && (derniere.status === 404 || derniere.status === 400) && modele !== MODELE_SECOURS) {
+  if (derniere && [400, 404, 500, 503].includes(derniere.status) && modele !== MODELE_SECOURS) {
     return appeler(MODELE_SECOURS, avec(recherche ? { recherche } : {})).catch(() => appeler(MODELE_SECOURS, avec({})));
   }
   throw derniere;
